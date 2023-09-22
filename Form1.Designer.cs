@@ -50,11 +50,14 @@
             button_rebotados = new Button();
             label5 = new Label();
             label6 = new Label();
+            button_bbddfinal = new Button();
+            button1 = new Button();
+            button4 = new Button();
             SuspendLayout();
             // 
             // textBox_id_consulta
             // 
-            textBox_id_consulta.Location = new System.Drawing.Point(12, 448);
+            textBox_id_consulta.Location = new System.Drawing.Point(12, 436);
             textBox_id_consulta.Name = "textBox_id_consulta";
             textBox_id_consulta.Size = new System.Drawing.Size(165, 23);
             textBox_id_consulta.TabIndex = 2;
@@ -72,10 +75,10 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Font = new Font("Stencil", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            label1.Location = new System.Drawing.Point(12, 426);
+            label1.Font = new Font("Arial Rounded MT Bold", 15.75F, FontStyle.Regular, GraphicsUnit.Point);
+            label1.Location = new System.Drawing.Point(12, 409);
             label1.Name = "label1";
-            label1.Size = new System.Drawing.Size(117, 19);
+            label1.Size = new System.Drawing.Size(139, 24);
             label1.TabIndex = 5;
             label1.Text = "Pedido corte";
             // 
@@ -158,7 +161,6 @@
             label2.Size = new System.Drawing.Size(189, 24);
             label2.TabIndex = 13;
             label2.Text = "Boletas manuales";
-            label2.Click += label2_Click;
             // 
             // textBox_manuales
             // 
@@ -179,10 +181,10 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Font = new Font("Stencil", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            label3.Location = new System.Drawing.Point(12, 474);
+            label3.Font = new Font("Arial Rounded MT Bold", 15.75F, FontStyle.Regular, GraphicsUnit.Point);
+            label3.Location = new System.Drawing.Point(12, 469);
             label3.Name = "label3";
-            label3.Size = new System.Drawing.Size(229, 19);
+            label3.Size = new System.Drawing.Size(264, 24);
             label3.TabIndex = 16;
             label3.Text = "Repartidores disponibles";
             // 
@@ -253,11 +255,44 @@
             label6.TabIndex = 20;
             label6.Text = "Aqui agrega todas las boletas del reporte de productos por despachar\r\nque deban ser despachadas, incluyendo las rebotadas";
             // 
+            // button_bbddfinal
+            // 
+            button_bbddfinal.Location = new System.Drawing.Point(631, 510);
+            button_bbddfinal.Name = "button_bbddfinal";
+            button_bbddfinal.Size = new System.Drawing.Size(129, 23);
+            button_bbddfinal.TabIndex = 26;
+            button_bbddfinal.Text = "Generar BBDD final";
+            button_bbddfinal.UseVisualStyleBackColor = true;
+            button_bbddfinal.Click += button_bbddfinal_Click;
+            // 
+            // button1
+            // 
+            button1.Location = new System.Drawing.Point(885, 262);
+            button1.Name = "button1";
+            button1.Size = new System.Drawing.Size(154, 23);
+            button1.TabIndex = 27;
+            button1.Text = "button1";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
+            // 
+            // button4
+            // 
+            button4.Location = new System.Drawing.Point(808, 347);
+            button4.Name = "button4";
+            button4.Size = new System.Drawing.Size(75, 23);
+            button4.TabIndex = 28;
+            button4.Text = "button4";
+            button4.UseVisualStyleBackColor = true;
+            button4.Click += button4_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(1296, 607);
+            Controls.Add(button4);
+            Controls.Add(button1);
+            Controls.Add(button_bbddfinal);
             Controls.Add(label6);
             Controls.Add(label2);
             Controls.Add(label5);
@@ -308,5 +343,8 @@
         private TextBox textBox_rebotados;
         private Label label5;
         private Label label6;
+        private Button button_bbddfinal;
+        private Button button1;
+        private Button button4;
     }
 }

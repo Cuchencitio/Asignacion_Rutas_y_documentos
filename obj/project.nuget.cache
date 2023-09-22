@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "B1IIJL9xFjZsmlaQXYeM+5j123IR3j8X2hH4h89LSpvl1Pgs7U7n1Am7rXEJSc+4V50tbKSigS9Um8KRzEKotQ==",
+  "dgSpecHash": "lAw5Z/ZNZJmYOW/UdyZFNggJNGko94QNAaMYRjM0EKfyMzJ80K0qBuzAkl3lQufE/+orQThKP28RupQ27N1Bog==",
   "success": true,
-  "projectFilePath": "C:\\Users\\cesar\\source\\repos\\AutomatizacionRutas\\AutomatizacionRutas.csproj",
+  "projectFilePath": "C:\\Users\\cesar\\source\\repos\\AutomatizacionRutas\\Asignacion_Rutas_y_documentos\\AutomatizacionRutas.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\cesar\\.nuget\\packages\\bitmiracle.libtiff.net\\2.4.649\\bitmiracle.libtiff.net.2.4.649.nupkg.sha512",
     "C:\\Users\\cesar\\.nuget\\packages\\ironsoftware.system.drawing\\2023.9.2\\ironsoftware.system.drawing.2023.9.2.nupkg.sha512",

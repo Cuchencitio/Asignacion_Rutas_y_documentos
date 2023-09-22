@@ -5852,11 +5852,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\cesar\\source\\repos\\AutomatizacionRutas\\AutomatizacionRutas.csproj",
+      "projectUniqueName": "C:\\Users\\cesar\\source\\repos\\AutomatizacionRutas\\Asignacion_Rutas_y_documentos\\AutomatizacionRutas.csproj",
       "projectName": "AutomatizacionRutas",
-      "projectPath": "C:\\Users\\cesar\\source\\repos\\AutomatizacionRutas\\AutomatizacionRutas.csproj",
+      "projectPath": "C:\\Users\\cesar\\source\\repos\\AutomatizacionRutas\\Asignacion_Rutas_y_documentos\\AutomatizacionRutas.csproj",
       "packagesPath": "C:\\Users\\cesar\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\cesar\\source\\repos\\AutomatizacionRutas\\obj\\",
+      "outputPath": "C:\\Users\\cesar\\source\\repos\\AutomatizacionRutas\\Asignacion_Rutas_y_documentos\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
