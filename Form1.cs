@@ -8,13 +8,18 @@ using System.Globalization;
 using System.Net;
 using System.Security.Policy;
 using static System.Net.WebRequestMethods;
-using IronXL;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using SixLabors.ImageSharp.Drawing;
 using System.Text.RegularExpressions;
+using Microsoft.VisualBasic.ApplicationServices;
+using Excel = Microsoft.Office.Interop.Excel;
+using System.Reflection;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+using ClosedXML.Excel;
 
 namespace AutomatizacionRutas
 
@@ -24,19 +29,20 @@ namespace AutomatizacionRutas
         DateTime today = DateTime.Today;
         int?[] idGalloNegro = { 453817, 457736 };
         string[] tono = { "las condes", "vitacura", "la reina", "lo barnechea", "ñuñoa", "providencia", "san joaquin", "san joaquín", "vitacura", "la reina", "Toño" };
-        string[] ricardo = { "la cisterna", "la granja", "lo espejo", "pedro aguirre cerda", "san miguel", "san ramon", "san ramón", "la cisterna", "Ricardo" };
+        string[] ricardo = { "la cisterna", "la granja", "lo espejo", "pedro aguirre cerda", "san miguel", "san ramon", "san ramón", "san ramón ", "la cisterna", "Ricardo" };
         string[] victor = { "independencia", "quinta normal", "recoleta", "santiago", "santiago centro", "Victor" };
         string[] sebastian = { "lo prado", "huechuraba", "conchali", "conchalí", "renca", "cerro navia", "pudahuel", "Sebastian" };
         string[] javiera = { "la florida", "macul", "peñalolen", "peñalolén", "Javiera" };
         string[] christian = { "cerrillos", "estación central", "estacion central", "maipú", "maipu", "Christian" };
-        string[] ana = { "puente alto", "el bosque", "la pintana", "san bernardo", "Ana" };
+        string[] ana = { "puente alto", "el bosque", "la pintana", "san bernardo", "puente alto ",  "Ana" };
         List<String> facturas = new List<String>();
         List<String> boletasManuales = new List<String>();
         List<String> boletasElectronicas = new List<String>();
         List<String> rebotados = new List<String>();
         List<Class1> listaJS = new List<Class1>();
         int icelda = 1;
-        WorkBook workBook = WorkBook.Create(ExcelFileFormat.XLSX);
+        //WorkBook workBook = WorkBook.Create(ExcelFileFormat.XLSX);
+        XLWorkbook workBook = new XLWorkbook();
         int indice = 0;
         public Form1()
         {
@@ -90,6 +96,7 @@ namespace AutomatizacionRutas
         public async void button2_Click(object sender, EventArgs e)
         {
             
+
             if (textBox_id_consulta.Text.Trim() != string.Empty)
             {
                 progressBar1.Visible = true;
@@ -102,7 +109,7 @@ namespace AutomatizacionRutas
                 string consultaOrdenes = $"https://api.jumpseller.com/v1/orders/after/{id}.json?login=6e0af5429c314830f7307a63298f2249&authtoken=59d8fd6f0f60dd72307e38b09078f594&page={ipagina}&limit=100";
                 string respuesta = await GetHttp(consultaOrdenes);
                 Class1[] lista = JsonConvert.DeserializeObject<Class1[]>(respuesta);                
-                WorkSheet Ruta = workBook.CreateWorkSheet("Ruta");
+                var Ruta = workBook.AddWorksheet("Ruta");
                 string productos = string.Empty;
                 if (lista.Length > 0)
                 {
@@ -114,50 +121,50 @@ namespace AutomatizacionRutas
                             if (lista[i].order.status == "Paid" && lista[i].order.payment_method_name != "Mercadolibre" && lista[i].order.shipping_method_name != "Retiro en Local" && lista[i].order.shipment_status != "No Aplicable")
                             {
                                 productos = string.Empty;
-                                Ruta["A" + (icelda)].Value = lista[i].order.id;
+                                Ruta.Cell($"A{icelda}").Value = lista[i].order.id;
                                 for (int p = 0; p < lista[i].order.products.Length; p++)
                                 {
                                     productos = productos + lista[i].order.products[p].qty + "x " + lista[i].order.products[p].name + ", ";
                                 }
-                                Ruta["B" + (icelda)].Value = productos + " x $" + lista[i].order.total;
-                                Ruta["C" + (icelda)].Value = lista[i].order.shipping_address.address + ", " + lista[i].order.shipping_address.municipality;
-                                Ruta["D" + (icelda)].Value = lista[i].order.customer.phone_prefix + lista[i].order.customer.phone;
-                                Ruta["E" + (icelda)].Value = lista[i].order.customer.fullname;
+                                Ruta.Cell($"B{icelda}").Value = productos + " x $" + lista[i].order.total;
+                                Ruta.Cell($"C{icelda}").Value = lista[i].order.shipping_address.address + ", " + lista[i].order.shipping_address.municipality;
+                                Ruta.Cell($"D{icelda}").Value = lista[i].order.customer.phone_prefix + lista[i].order.customer.phone;
+                                Ruta.Cell($"E{icelda}").Value = lista[i].order.customer.fullname;
                                 if (tono.Contains(lista[i].order.shipping_address.municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = tono[tono.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = tono[tono.Length - 1];
                                 }
                                 else if (ricardo.Contains(lista[i].order.shipping_address.municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = ricardo[ricardo.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = ricardo[ricardo.Length - 1];
                                 }
                                 else if (ana.Contains(lista[i].order.shipping_address.municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = ana[ana.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = ana[ana.Length - 1];
                                 }
                                 else if (javiera.Contains(lista[i].order.shipping_address.municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = javiera[javiera.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = javiera[javiera.Length - 1];
                                 }
                                 else if (christian.Contains(lista[i].order.shipping_address.municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = christian[christian.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = christian[christian.Length - 1];
                                 }
                                 else if (sebastian.Contains(lista[i].order.shipping_address.municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = sebastian[sebastian.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = sebastian[sebastian.Length - 1];
                                 }
                                 else if (victor.Contains(lista[i].order.shipping_address.municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = victor[victor.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = victor[victor.Length - 1];
                                 }
                                 else if (idGalloNegro.Contains(lista[i].order.shipping_method_id))
                                 {
-                                    Ruta["F" + (icelda)].Value = "Gallo Negro";
+                                    Ruta.Cell($"F{icelda}").Value = "Gallo Negro";
                                 }
                                 else if (lista[i].order.shipping_method_id == 159663)
                                 {
-                                    Ruta["F" + (icelda)].Value = lista[i].order.shipping_method_name;
+                                    Ruta.Cell($"F{icelda}").Value = lista[i].order.shipping_method_name;
                                 }
                                 icelda = icelda + 1;                                
                                 
@@ -190,52 +197,53 @@ namespace AutomatizacionRutas
                         productos = string.Empty;
                         string Rebotado = await ConsultaPedidoUnico(rebotado);
                         Class1 pedidoUnico = JsonConvert.DeserializeObject<Class1>(Rebotado);
-                        Ruta["A" + (icelda)].Value = pedidoUnico.order.id;
+                        Ruta.Cell($"A{icelda}").Value = pedidoUnico.order.id;
                         for (int p = 0; p < pedidoUnico.order.products.Length; p++)
                         {
                             productos = productos + pedidoUnico.order.products[p].qty + "x " + pedidoUnico.order.products[p].name + ", ";
                         }
-                        Ruta["B" + (icelda)].Value = productos + " x $" + pedidoUnico.order.total;
-                        Ruta["C" + (icelda)].Value = pedidoUnico.order.shipping_address.address + ", " + pedidoUnico.order.shipping_address.municipality;
-                        Ruta["D" + (icelda)].Value = pedidoUnico.order.customer.phone_prefix + pedidoUnico.order.customer.phone;
-                        Ruta["E" + (icelda)].Value = pedidoUnico.order.customer.fullname;
+                        Ruta.Cell($"B{icelda}").Value = productos + " x $" + pedidoUnico.order.total;
+                        Ruta.Cell($"C{icelda}").Value = pedidoUnico.order.shipping_address.address + ", " + pedidoUnico.order.shipping_address.municipality;
+                        Ruta.Cell($"D{icelda}").Value = pedidoUnico.order.customer.phone_prefix + pedidoUnico.order.customer.phone;
+                        Ruta.Cell($"E{icelda}").Value = pedidoUnico.order.customer.fullname;
                         if (tono.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
                         {
-                            Ruta["F" + (icelda)].Value = tono[tono.Length - 1];
+                            Ruta.Cell($"F{icelda}").Value = tono[tono.Length - 1];
                         }
                         else if (ricardo.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
                         {
-                            Ruta["F" + (icelda)].Value = ricardo[ricardo.Length - 1];
+                            Ruta.Cell($"F{icelda}").Value = ricardo[ricardo.Length - 1];
                         }
                         else if (ana.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
                         {
-                            Ruta["F" + (icelda)].Value = ana[ana.Length - 1];
+                            Ruta.Cell($"F{icelda}").Value = ana[ana.Length - 1];
                         }
                         else if (javiera.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
                         {
-                            Ruta["F" + (icelda)].Value = javiera[javiera.Length - 1];
+                            Ruta.Cell($"F{icelda}").Value = javiera[javiera.Length - 1];
                         }
                         else if (christian.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
                         {
-                            Ruta["F" + (icelda)].Value = christian[christian.Length - 1];
+                            Ruta.Cell($"F{icelda}").Value = christian[christian.Length - 1];
                         }
                         else if (sebastian.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
                         {
-                            Ruta["F" + (icelda)].Value = sebastian[sebastian.Length - 1];
+                            Ruta.Cell($"F{icelda}").Value = sebastian[sebastian.Length - 1];
                         }
                         else if (victor.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
                         {
-                            Ruta["F" + (icelda)].Value = victor[victor.Length - 1];
+                            Ruta.Cell($"F{icelda}").Value = victor[victor.Length - 1];
                         }
                         else if (idGalloNegro.Contains(pedidoUnico.order.shipping_method_id))
                         {
-                            Ruta["F" + (icelda)].Value = "Gallo Negro";
+                            Ruta.Cell($"F{icelda}").Value = "Gallo Negro";
                         }
                         else if (pedidoUnico.order.shipping_method_id == 159663)
                         {
-                            Ruta["F" + (icelda)].Value = pedidoUnico.order.shipping_method_name;
+                            Ruta.Cell($"F{icelda}").Value = pedidoUnico.order.shipping_method_name;
                         }
                         icelda = icelda + 1;
+                        listaJS.Add(pedidoUnico);
                     }
                 }
                 if (facturas.Count > 0)
@@ -246,7 +254,7 @@ namespace AutomatizacionRutas
                         BoletaBsale boletaFactura = JsonConvert.DeserializeObject<BoletaBsale>(await consultaBoleta(nf));
                         for (int a = 0; a < boletaFactura.items.Length; a++)
                         {
-                            if (boletaFactura.items[a].document_type.id == "6")
+                            if (boletaFactura.items[a].document_type.id == "6" && boletaFactura.items[a].address != "Av. Gabriela Oriente 2174" )
                             {
                                 DetalleBoletasBsale detalleFactura = JsonConvert.DeserializeObject<DetalleBoletasBsale>(await consultasHref(boletaFactura.items[a].details.href));
                                 for (int p = 0; p < detalleFactura.items.Length; p++)
@@ -256,38 +264,38 @@ namespace AutomatizacionRutas
                                     productosFactura = productosFactura + detalleFactura.items[p].quantity + "x " + productoBsale.name + " " + variante.description + ", ";
                                 }
                                 InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boletaFactura.items[a].client.href));
-                                Ruta["A" + (icelda)].Value = "F-" + boletaFactura.items[a].number;
-                                Ruta["B" + (icelda)].Value = productosFactura;
-                                Ruta["C" + (icelda)].Value = boletaFactura.items[a].address + ", " + boletaFactura.items[a].municipality;
-                                Ruta["D" + (icelda)].Value = infoUsuario.phone;
-                                Ruta["E" + (icelda)].Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                Ruta.Cell($"A{icelda}").Value = "F-" + boletaFactura.items[a].number;
+                                Ruta.Cell($"B{icelda}").Value = productosFactura;
+                                Ruta.Cell($"C{icelda}").Value = boletaFactura.items[a].address + ", " + boletaFactura.items[a].municipality;
+                                Ruta.Cell($"D{icelda}").Value = infoUsuario.phone;
+                                Ruta.Cell($"E{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
                                 if (tono.Contains(boletaFactura.items[a].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = tono[tono.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = tono[tono.Length - 1];
                                 }
                                 else if (ricardo.Contains(boletaFactura.items[a].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = ricardo[ricardo.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = ricardo[ricardo.Length - 1];
                                 }
                                 else if (ana.Contains(boletaFactura.items[a].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = ana[ana.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = ana[ana.Length - 1];
                                 }
                                 else if (javiera.Contains(boletaFactura.items[a].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = javiera[javiera.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = javiera[javiera.Length - 1];
                                 }
                                 else if (christian.Contains(boletaFactura.items[a].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = christian[christian.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = christian[christian.Length - 1];
                                 }
                                 else if (sebastian.Contains(boletaFactura.items[a].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = sebastian[sebastian.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = sebastian[sebastian.Length - 1];
                                 }
                                 else if (victor.Contains(boletaFactura.items[a].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = victor[victor.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = victor[victor.Length - 1];
                                 }
                                 icelda = icelda + 1;
                             }
@@ -306,7 +314,7 @@ namespace AutomatizacionRutas
                         BoletaBsale boletaManual = JsonConvert.DeserializeObject<BoletaBsale>(await consultaBoleta(nbm));
                         for (int a = 0; a < boletaManual.items.Length; a++)
                         {
-                            if (boletaManual.items[a].document_type.id == "10")
+                            if (boletaManual.items[a].document_type.id == "10" && boletaManual.items[a].address != "Av. Gabriela Oriente 2174")
                             {
                                 DetalleBoletasBsale detalleBoleta = JsonConvert.DeserializeObject<DetalleBoletasBsale>(await consultasHref(boletaManual.items[a].details.href));
                                 for (int p = 0; p < detalleBoleta.items.Length; p++)
@@ -316,38 +324,38 @@ namespace AutomatizacionRutas
                                     productosManual = productosManual + detalleBoleta.items[p].quantity + "x " + productoBsale.name + " " + variante.description + ", ";
                                 }
                                 InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boletaManual.items[a].client.href));
-                                Ruta["A" + (icelda)].Value = "BM-" + boletaManual.items[a].number;
-                                Ruta["B" + (icelda)].Value = productosManual;
-                                Ruta["C" + (icelda)].Value = boletaManual.items[a].address + ", " + boletaManual.items[a].municipality;
-                                Ruta["D" + (icelda)].Value = infoUsuario.phone;
-                                Ruta["E" + (icelda)].Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                Ruta.Cell($"A{icelda}").Value = "BM-" + boletaManual.items[a].number;
+                                Ruta.Cell($"B{icelda}").Value = productosManual;
+                                Ruta.Cell($"C{icelda}").Value = boletaManual.items[a].address + ", " + boletaManual.items[a].municipality;
+                                Ruta.Cell($"D{icelda}").Value = infoUsuario.phone;
+                                Ruta.Cell($"E{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
                                 if (tono.Contains(boletaManual.items[a].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = tono[tono.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = tono[tono.Length - 1];
                                 }
                                 else if (ricardo.Contains(boletaManual.items[a].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = ricardo[ricardo.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = ricardo[ricardo.Length - 1];
                                 }
                                 else if (ana.Contains(boletaManual.items[a].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = ana[ana.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = ana[ana.Length - 1];
                                 }
                                 else if (javiera.Contains(boletaManual.items[a].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = javiera[javiera.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = javiera[javiera.Length - 1];
                                 }
                                 else if (christian.Contains(boletaManual.items[a].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = christian[christian.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = christian[christian.Length - 1];
                                 }
                                 else if (sebastian.Contains(boletaManual.items[a].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = sebastian[sebastian.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = sebastian[sebastian.Length - 1];
                                 }
                                 else if (victor.Contains(boletaManual.items[a].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = victor[victor.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = victor[victor.Length - 1];
                                 }
                                 icelda = icelda + 1;
                             }
@@ -366,7 +374,7 @@ namespace AutomatizacionRutas
                         BoletaBsale boleta = JsonConvert.DeserializeObject<BoletaBsale>(await consultaBoleta(nboleta));
                         for (int i = 0; i < boleta.items.Length; i++)
                         {
-                            if (boleta.items[i].document_type.id == "1")
+                            if (boleta.items[i].document_type.id == "1" && boleta.items[i].address != "Av. Gabriela Oriente 2174")
                             {
                                 DetalleBoletasBsale detalleBoleta = JsonConvert.DeserializeObject<DetalleBoletasBsale>(await consultasHref(boleta.items[i].details.href));
                                 for (int p = 0; p < detalleBoleta.items.Length; p++)
@@ -376,38 +384,38 @@ namespace AutomatizacionRutas
                                     productosFactura = productosFactura + detalleBoleta.items[p].quantity + "x " + productoBsale.name + " " + variante.description + ", ";
                                 }
                                 InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boleta.items[i].client.href));
-                                Ruta["A" + (icelda)].Value = "BE-" + boleta.items[i].number;
-                                Ruta["B" + (icelda)].Value = productosFactura;
-                                Ruta["C" + (icelda)].Value = boleta.items[i].address + ", " + boleta.items[i].municipality;
-                                Ruta["D" + (icelda)].Value = infoUsuario.phone;
-                                Ruta["E" + (icelda)].Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                Ruta.Cell($"A{icelda}").Value = "BE-" + boleta.items[i].number;
+                                Ruta.Cell($"B{icelda}").Value = productosFactura;
+                                Ruta.Cell($"C{icelda}").Value = boleta.items[i].address + ", " + boleta.items[i].municipality;
+                                Ruta.Cell($"D{icelda}").Value = infoUsuario.phone;
+                                Ruta.Cell($"E{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
                                 if (tono.Contains(boleta.items[i].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = tono[tono.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = tono[tono.Length - 1];
                                 }
                                 else if (ricardo.Contains(boleta.items[i].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = ricardo[ricardo.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = ricardo[ricardo.Length - 1];
                                 }
                                 else if (ana.Contains(boleta.items[i].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = ana[ana.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = ana[ana.Length - 1];
                                 }
                                 else if (javiera.Contains(boleta.items[i].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = javiera[javiera.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = javiera[javiera.Length - 1];
                                 }
                                 else if (christian.Contains(boleta.items[i].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = christian[christian.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = christian[christian.Length - 1];
                                 }
                                 else if (sebastian.Contains(boleta.items[i].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = sebastian[sebastian.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = sebastian[sebastian.Length - 1];
                                 }
                                 else if (victor.Contains(boleta.items[i].municipality.ToLower()))
                                 {
-                                    Ruta["F" + (icelda)].Value = victor[victor.Length - 1];
+                                    Ruta.Cell($"F{icelda}").Value = victor[victor.Length - 1];
                                 }
                                 icelda = icelda + 1;
                             }
@@ -415,7 +423,7 @@ namespace AutomatizacionRutas
                             {
                                 continue;
                             }
-
+                                
                         }
                     }
                 }
@@ -477,311 +485,459 @@ namespace AutomatizacionRutas
 
         private async void button_bbddfinal_Click(object sender, EventArgs e)
         {
-            //icelda = 1;
-            //WorkBook wb = WorkBook.Load($"C:\\Users\\cesar\\Documentos\\Archivo Ruta {today.ToString("dd/MM/yyyy")}.xlsx");
-            //WorkSheet Rutas = wb.GetWorkSheet("Ruta");
-            //WorkSheet BBDDFinal = workBook.CreateWorkSheet("BBDD Final");
-            //string productos = string.Empty;
-            //int qty = 0;
-            //if (rebotados.Count > 0)
-            //{
-            //    foreach (string rebotado in rebotados)
-            //    {
-            //        qty = 0;
-            //        productos = string.Empty;
-            //        string Rebotado = await ConsultaPedidoUnico(rebotado);
-            //        Class1 pedidoUnico = JsonConvert.DeserializeObject<Class1>(Rebotado);
-            //        BBDDFinal["A" + (icelda)].Value = pedidoUnico.order.customer.fullname;
-            //        BBDDFinal["B" + (icelda)].Value = pedidoUnico.order.additional_fields[0].value;
-            //        BBDDFinal["C" + (icelda)].Value = pedidoUnico.order.shipping_address.address;
-            //        BBDDFinal["D" + (icelda)].Value = pedidoUnico.order.shipping_address.municipality;
-            //        BBDDFinal["E" + (icelda)].Value = pedidoUnico.order.customer.phone_prefix + pedidoUnico.order.customer.phone;
-            //        BBDDFinal["F" + (icelda)].Value = pedidoUnico.order.customer.email;
-
-            //        BBDDFinal["K" + (icelda)].Value = pedidoUnico.order.payment_method_name;
-            //        BBDDFinal["L" + (icelda)].Value = pedidoUnico.order.additional_information;
-            //        BBDDFinal["M" + (icelda)].Value = pedidoUnico.order.completed_at;
-            //        BBDDFinal["N" + (icelda)].Value = pedidoUnico.order.shipping_method_name;
-            //        BBDDFinal["P" + (icelda)].Value = "Casa Matriz";
-            //        BBDDFinal["Q" + (icelda)].Value = "Santiago";
-            //        BBDDFinal["R" + (icelda)].Value = pedidoUnico.order.id;
-            //        int indiceBusqueda = 0;
-            //        foreach (var r in BBDDFinal[$"A0:A{rebotados.Count}"])
-            //        {
-            //            foreach (var p in Rutas[$"A0:A{Rutas.Count}"])
-            //            {
-            //                if (r.Value == p.Value)
-            //                {
-            //                    BBDDFinal["O" + (icelda)].Value = Rutas["F" + indiceBusqueda].Value;
-            //                    break;
-            //                }
-            //                indiceBusqueda = indiceBusqueda + 1;
-            //            }
-            //            break;
-            //        }
-            //        for (int p = 0; p < pedidoUnico.order.products.Length; p++)
-            //        {
-            //            productos = productos + pedidoUnico.order.products[p].name;
-            //            string kg = Regex.Match(productos, @"\d+").Value;
-            //            if (productos.Contains("("))
-            //            {
-            //                int indice1 = productos.IndexOf('(');
-            //                int indice2 = productos.IndexOf(')');
-            //                productos.Remove(indice1, (indice2 - indice1));
-            //            }
-            //            BBDDFinal["G" + (icelda)].Value = productos;
-            //            BBDDFinal["H" + (icelda)].Value = kg;
-            //            BBDDFinal["I" + (icelda)].Value = pedidoUnico.order.products[p].qty;
-            //            BBDDFinal["J" + (icelda)].Value = pedidoUnico.order.products[p].price;
-            //            icelda = icelda + 1;
-            //        }
-            //        //icelda = icelda + 1;
-            //    }
-            //    workBook.SaveAs($"C:\\Users\\cesar\\Documentos\\Archivo Ruta {today.ToString("dd/MM/yyyy")}.xlsx");
-            //}
-            //if (facturas.Count > 0)
-            //{
-            //    foreach (string nf in facturas)
-            //    {
-            //        string productosFactura = string.Empty;
-            //        BoletaBsale boletaFactura = JsonConvert.DeserializeObject<BoletaBsale>(await consultaBoleta(nf));
-            //        for (int a = 0; a < boletaFactura.items.Length; a++)
-            //        {
-            //            if (boletaFactura.items[a].document_type.id == "6")
-            //            {
-            //                DetalleBoletasBsale detalleFactura = JsonConvert.DeserializeObject<DetalleBoletasBsale>(await consultasHref(boletaFactura.items[a].details.href));
-            //                for (int p = 0; p < detalleFactura.items.Length; p++)
-            //                {
-            //                    VarianteProductoBsale variante = JsonConvert.DeserializeObject<VarianteProductoBsale>(await consultasHref(detalleFactura.items[p].variant.href));
-            //                    ProductoBsale productoBsale = JsonConvert.DeserializeObject<ProductoBsale>(await consultasHref(variante.product.href));
-            //                    productosFactura = productosFactura + detalleFactura.items[p].quantity + "x " + productoBsale.name + " " + variante.description + ", ";
-            //                }
-            //                InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boletaFactura.items[a].client.href));
-            //                Ruta["A" + (icelda)].Value = "F-" + boletaFactura.items[a].number;
-            //                Ruta["B" + (icelda)].Value = productosFactura;
-            //                Ruta["C" + (icelda)].Value = boletaFactura.items[a].address + ", " + boletaFactura.items[a].municipality;
-            //                Ruta["D" + (icelda)].Value = infoUsuario.phone;
-            //                Ruta["E" + (icelda)].Value = infoUsuario.firstName + " " + infoUsuario.lastName;
-            //                if (tono.Contains(boletaFactura.items[a].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = tono[tono.Length - 1];
-            //                }
-            //                else if (ricardo.Contains(boletaFactura.items[a].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = ricardo[ricardo.Length - 1];
-            //                }
-            //                else if (ana.Contains(boletaFactura.items[a].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = ana[ana.Length - 1];
-            //                }
-            //                else if (javiera.Contains(boletaFactura.items[a].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = javiera[javiera.Length - 1];
-            //                }
-            //                else if (christian.Contains(boletaFactura.items[a].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = christian[christian.Length - 1];
-            //                }
-            //                else if (sebastian.Contains(boletaFactura.items[a].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = sebastian[sebastian.Length - 1];
-            //                }
-            //                else if (victor.Contains(boletaFactura.items[a].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = victor[victor.Length - 1];
-            //                }
-            //                icelda = icelda + 1;
-            //            }
-            //            else
-            //            {
-            //                continue;
-            //            }
-            //        }
-            //    }
-            //}
-            //if (boletasManuales.Count > 0)
-            //{
-            //    foreach (string nbm in boletasManuales)
-            //    {
-            //        string productosManual = string.Empty;
-            //        BoletaBsale boletaManual = JsonConvert.DeserializeObject<BoletaBsale>(await consultaBoleta(nbm));
-            //        for (int a = 0; a < boletaManual.items.Length; a++)
-            //        {
-            //            if (boletaManual.items[a].document_type.id == "10")
-            //            {
-            //                DetalleBoletasBsale detalleBoleta = JsonConvert.DeserializeObject<DetalleBoletasBsale>(await consultasHref(boletaManual.items[a].details.href));
-            //                for (int p = 0; p < detalleBoleta.items.Length; p++)
-            //                {
-            //                    VarianteProductoBsale variante = JsonConvert.DeserializeObject<VarianteProductoBsale>(await consultasHref(detalleBoleta.items[p].variant.href));
-            //                    ProductoBsale productoBsale = JsonConvert.DeserializeObject<ProductoBsale>(await consultasHref(variante.product.href));
-            //                    productosManual = productosManual + detalleBoleta.items[p].quantity + "x " + productoBsale.name + " " + variante.description + ", ";
-            //                }
-            //                InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boletaManual.items[a].client.href));
-            //                Ruta["A" + (icelda)].Value = "BM-" + boletaManual.items[a].number;
-            //                Ruta["B" + (icelda)].Value = productosManual;
-            //                Ruta["C" + (icelda)].Value = boletaManual.items[a].address + ", " + boletaManual.items[a].municipality;
-            //                Ruta["D" + (icelda)].Value = infoUsuario.phone;
-            //                Ruta["E" + (icelda)].Value = infoUsuario.firstName + " " + infoUsuario.lastName;
-            //                if (tono.Contains(boletaManual.items[a].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = tono[tono.Length - 1];
-            //                }
-            //                else if (ricardo.Contains(boletaManual.items[a].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = ricardo[ricardo.Length - 1];
-            //                }
-            //                else if (ana.Contains(boletaManual.items[a].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = ana[ana.Length - 1];
-            //                }
-            //                else if (javiera.Contains(boletaManual.items[a].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = javiera[javiera.Length - 1];
-            //                }
-            //                else if (christian.Contains(boletaManual.items[a].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = christian[christian.Length - 1];
-            //                }
-            //                else if (sebastian.Contains(boletaManual.items[a].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = sebastian[sebastian.Length - 1];
-            //                }
-            //                else if (victor.Contains(boletaManual.items[a].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = victor[victor.Length - 1];
-            //                }
-            //                icelda = icelda + 1;
-            //            }
-            //            else
-            //            {
-            //                continue;
-            //            }
-            //        }
-            //    }
-            //}
-            //if (boletasElectronicas.Count > 0)
-            //{
-            //    foreach (string nboleta in boletasElectronicas)
-            //    {
-            //        string productosFactura = string.Empty;
-            //        BoletaBsale boleta = JsonConvert.DeserializeObject<BoletaBsale>(await consultaBoleta(nboleta));
-            //        for (int i = 0; i < boleta.items.Length; i++)
-            //        {
-            //            if (boleta.items[i].document_type.id == "1")
-            //            {
-            //                DetalleBoletasBsale detalleBoleta = JsonConvert.DeserializeObject<DetalleBoletasBsale>(await consultasHref(boleta.items[i].details.href));
-            //                for (int p = 0; p < detalleBoleta.items.Length; p++)
-            //                {
-            //                    VarianteProductoBsale variante = JsonConvert.DeserializeObject<VarianteProductoBsale>(await consultasHref(detalleBoleta.items[p].variant.href));
-            //                    ProductoBsale productoBsale = JsonConvert.DeserializeObject<ProductoBsale>(await consultasHref(variante.product.href));
-            //                    productosFactura = productosFactura + detalleBoleta.items[p].quantity + "x " + productoBsale.name + " " + variante.description + ", ";
-            //                }
-            //                InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boleta.items[i].client.href));
-            //                Ruta["A" + (icelda)].Value = "BE-" + boleta.items[i].number;
-            //                Ruta["B" + (icelda)].Value = productosFactura;
-            //                Ruta["C" + (icelda)].Value = boleta.items[i].address + ", " + boleta.items[i].municipality;
-            //                Ruta["D" + (icelda)].Value = infoUsuario.phone;
-            //                Ruta["E" + (icelda)].Value = infoUsuario.firstName + " " + infoUsuario.lastName;
-            //                if (tono.Contains(boleta.items[i].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = tono[tono.Length - 1];
-            //                }
-            //                else if (ricardo.Contains(boleta.items[i].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = ricardo[ricardo.Length - 1];
-            //                }
-            //                else if (ana.Contains(boleta.items[i].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = ana[ana.Length - 1];
-            //                }
-            //                else if (javiera.Contains(boleta.items[i].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = javiera[javiera.Length - 1];
-            //                }
-            //                else if (christian.Contains(boleta.items[i].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = christian[christian.Length - 1];
-            //                }
-            //                else if (sebastian.Contains(boleta.items[i].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = sebastian[sebastian.Length - 1];
-            //                }
-            //                else if (victor.Contains(boleta.items[i].municipality.ToLower()))
-            //                {
-            //                    Ruta["F" + (icelda)].Value = victor[victor.Length - 1];
-            //                }
-            //                icelda = icelda + 1;
-            //            }
-            //            else
-            //            {
-            //                continue;
-            //            }
-
-            //        }
-            //    }
-            //}
+            
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            WorkSheet BBDDFinal = workBook.CreateWorkSheet("BBDD final");
+            var BBDDFinal = workBook.AddWorksheet("BBDD Final");
             workBook.SaveAs($"C:\\Users\\cesar\\Documentos\\Archivo Ruta {today.ToString("dd/MM/yyyy")}.xlsx");
         }
 
         private async void button4_Click(object sender, EventArgs e)
         {
-            icelda = 1;
-            WorkBook wb = WorkBook.Load($"C:\\Users\\cesar\\Documentos\\Archivo Ruta {today.ToString("dd/MM/yyyy")}.xlsx");
-            WorkSheet Rutas = wb.GetWorkSheet("Ruta");
-            WorkSheet BBDDFinal = workBook.CreateWorkSheet("BBDD Final");
+            int indiceBusqueda = 1;
+            int indicePedido = 1;
+            string medida = string.Empty;
+            icelda = 1;            
+            var Rutas = workBook.Worksheet("Ruta");
+            var BBDDFinal = workBook.AddWorksheet("BBDD Final");
             foreach (var pedido in listaJS)
-            {                    
-                            string productos = string.Empty;
-                        
-                        
-                            string pedidos = pedido.order.id.ToString();                          
-                            productos = string.Empty;
-                            string Rebotado = await ConsultaPedidoUnico(pedidos);
-                            Class1 pedidoUnico = JsonConvert.DeserializeObject<Class1>(Rebotado);
-                            BBDDFinal["A" + (icelda)].Value = pedidoUnico.order.customer.fullname;
-                            if (pedidoUnico.order.additional_fields.Length > 0)
+            {                 
+                string productos = string.Empty;                
+                string pedidos = pedido.order.id.ToString();                          
+                string Rebotado = await ConsultaPedidoUnico(pedidos);
+                Class1 pedidoUnico = JsonConvert.DeserializeObject<Class1>(Rebotado);                                       
+                for (int p = 0; p < pedidoUnico.order.products.Length; p++)
+                {
+                    
+                    productos = productos + pedidoUnico.order.products[p].name;
+                    productos = productos.Replace(",", ".");
+                    string kg = Regex.Match(productos, @"([-+]?[0-9]*\.?[0-9]+)").Value;                                       
+                    if (productos.Contains("kg") || productos.Contains("Kg") || productos.Contains("KG"))
+                    {
+                        productos = productos.Replace("kg", "");
+                        productos = productos.Replace("KG", "");
+                        productos = productos.Replace("Kg", "");
+                        medida = "Kg";
+                    }
+                    if (kg.Trim() != string.Empty)
+                    {
+                        if (productos.Contains($"{kg}g") || productos.Contains($"{kg} g"))
+                        {
+                            productos = productos.Replace($"{kg}g", "");
+                            productos = productos.Replace($"{kg} g", "");
+                            medida = "g";
+                        }
+                    }else
+                    {
+                        medida = "No Aplica";
+                    }                    
+                    if (productos.Contains(kg) && productos.Contains(kg) != null && kg != string.Empty && !productos.Contains("TOP K"))
+                    {
+                        productos = productos.Replace(kg, "");
+                    }
+                    if (productos.Contains("TOP K"))
+                    {
+                        string pesoArenas = productos.Substring(productos.IndexOf('('));
+                        string kgArena = Regex.Match(pesoArenas, @"([-+]?[0-9]*\.?[0-9]+)").Value;
+                        kg = kgArena;
+                    }
+                    if (productos.Contains("("))
+                    {
+                        int indice1 = productos.IndexOf('(');
+                        productos = productos.Remove(indice1);
+                    }
+                    BBDDFinal.Cell($"A{icelda}").Value = pedidoUnico.order.customer.fullname;
+                    if (pedidoUnico.order.additional_fields.Length > 0)
+                    {
+                        BBDDFinal.Cell($"B{icelda}").Value = pedidoUnico.order.additional_fields[0].value;
+                    }
+                    if (pedidoUnico.order.shipping_address != null)
+                    {
+                        BBDDFinal.Cell($"C{icelda}").Value = pedidoUnico.order.shipping_address.address;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                    BBDDFinal.Cell($"G{icelda}").Value = productos;
+                    productos = string.Empty;
+                    BBDDFinal.Cell($"H{icelda}").Value = kg + medida;
+                    BBDDFinal.Cell($"I{icelda}").Value = pedidoUnico.order.products[p].qty;
+                    BBDDFinal.Cell($"J{icelda}").Value = pedidoUnico.order.products[p].price;
+                    BBDDFinal.Cell($"D{icelda}").Value = pedidoUnico.order.shipping_address.municipality;
+                    BBDDFinal.Cell($"E{icelda}").Value = pedidoUnico.order.customer.phone_prefix + pedidoUnico.order.customer.phone;
+                    BBDDFinal.Cell($"F{icelda}").Value = pedidoUnico.order.customer.email;
+                    BBDDFinal.Cell($"K{icelda}").Value = pedidoUnico.order.payment_method_name;
+                    if (pedidoUnico.order.additional_information == null)
+                    {
+                        BBDDFinal.Cell($"L{icelda}").Value = "-";
+                    } else
+                    {
+                        BBDDFinal.Cell($"L{icelda}").Value = pedidoUnico.order.additional_information.ToString();
+                    }                    
+                    BBDDFinal.Cell($"M{icelda}").Value = pedidoUnico.order.completed_at;
+                    BBDDFinal.Cell($"N{icelda}").Value = pedidoUnico.order.shipping_method_name;
+                    BBDDFinal.Cell($"P{icelda}").Value = "Casa Matriz";
+                    BBDDFinal.Cell($"Q{icelda}").Value = "Santiago";
+                    BBDDFinal.Cell($"R{icelda}").Value = pedidoUnico.order.id;
+                    icelda = icelda + 1;
+                    
+                }                 
+            }
+            if (facturas.Count > 0)
+            {
+                foreach (string nf in facturas)
+                {
+                    string productosFactura = string.Empty;
+                    BoletaBsale boletaFactura = JsonConvert.DeserializeObject<BoletaBsale>(await consultaBoleta(nf));
+                    for (int a = 0; a < boletaFactura.items.Length; a++)
+                    {
+                        if (boletaFactura.items[a].document_type.id == "6")
+                        {
+                            InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boletaFactura.items[a].client.href));
+                            DetalleBoletasBsale detalleFactura = JsonConvert.DeserializeObject<DetalleBoletasBsale>(await consultasHref(boletaFactura.items[a].details.href));
+                            Vendedor vendedor = JsonConvert.DeserializeObject<Vendedor>(await consultasHref(boletaFactura.items[a].user.href));
+                            for (int p = 0; p < detalleFactura.items.Length; p++)
                             {
-                                BBDDFinal["B" + (icelda)].Value = pedidoUnico.order.additional_fields[0].value;
-                            }                           
-                            BBDDFinal["C" + (icelda)].Value = pedidoUnico.order.shipping_address.address;
-                            BBDDFinal["D" + (icelda)].Value = pedidoUnico.order.shipping_address.municipality;
-                            BBDDFinal["E" + (icelda)].Value = pedidoUnico.order.customer.phone_prefix + pedidoUnico.order.customer.phone;
-                            BBDDFinal["F" + (icelda)].Value = pedidoUnico.order.customer.email;
-
-                            BBDDFinal["K" + (icelda)].Value = pedidoUnico.order.payment_method_name;
-                            BBDDFinal["L" + (icelda)].Value = pedidoUnico.order.additional_information;
-                            BBDDFinal["M" + (icelda)].Value = pedidoUnico.order.completed_at;
-                            BBDDFinal["N" + (icelda)].Value = pedidoUnico.order.shipping_method_name;
-                            BBDDFinal["P" + (icelda)].Value = "Casa Matriz";
-                            BBDDFinal["Q" + (icelda)].Value = "Santiago";
-                            BBDDFinal["R" + (icelda)].Value = pedidoUnico.order.id;                            
-                            for (int p = 0; p < pedidoUnico.order.products.Length; p++)
-                            {
-                                productos = productos + pedidoUnico.order.products[p].name;
-                                string kg = Regex.Match(productos, @"\d+").Value;
-                                if (productos.Contains("("))
+                                //productosFactura = string.Empty;
+                                VarianteProductoBsale variante = JsonConvert.DeserializeObject<VarianteProductoBsale>(await consultasHref(detalleFactura.items[p].variant.href));
+                                ProductoBsale productoBsale = JsonConvert.DeserializeObject<ProductoBsale>(await consultasHref(variante.product.href));
+                                //productosFactura = productosFactura + detalleFactura.items[p].quantity + "x " + productoBsale.name + " " + variante.description + ", ";
+                                //G, H, I y J Generar información de producto con el formato de las boletas de JS
+                                BBDDFinal.Cell($"G{icelda}").Value = productoBsale.name;
+                                BBDDFinal.Cell($"H{icelda}").Value = variante.description;
+                                BBDDFinal.Cell($"I{icelda}").Value = detalleFactura.items[p].quantity;
+                                BBDDFinal.Cell($"J{icelda}").Value = detalleFactura.items[p].totalAmount;
+                                //productos = productos + pedidoUnico.order.products[p].name;
+                                //productos = productos.Replace(",", ".");
+                                //string kg = Regex.Match(productos, @"([-+]?[0-9]*\.?[0-9]+)").Value;
+                                //if (productos.Contains("kg") || productos.Contains("Kg") || productos.Contains("KG"))
+                                //{
+                                //    productos = productos.Replace("kg", "");
+                                //    productos = productos.Replace("KG", "");
+                                //    productos = productos.Replace("Kg", "");
+                                //    medida = "Kg";
+                                //}
+                                //if (kg.Trim() != string.Empty)
+                                //{
+                                //    if (productos.Contains($"{kg}g") || productos.Contains($"{kg} g"))
+                                //    {
+                                //        productos = productos.Replace($"{kg}g", "");
+                                //        productos = productos.Replace($"{kg} g", "");
+                                //        medida = "g";
+                                //    }
+                                //}
+                                //else
+                                //{
+                                //    medida = "No Aplica";
+                                //}
+                                //if (productos.Contains(kg) && productos.Contains(kg) != null && kg != string.Empty && !productos.Contains("TOP K"))
+                                //{
+                                //    productos = productos.Replace(kg, "");
+                                //}
+                                //if (productos.Contains("TOP K"))
+                                //{
+                                //    string pesoArenas = productos.Substring(productos.IndexOf('('));
+                                //    string kgArena = Regex.Match(pesoArenas, @"([-+]?[0-9]*\.?[0-9]+)").Value;
+                                //    kg = kgArena;
+                                //}
+                                //if (productos.Contains("("))
+                                //{
+                                //    int indice1 = productos.IndexOf('(');
+                                //    productos = productos.Remove(indice1);
+                                //}
+                                //BBDDFinal["A" + (icelda)].Value = pedidoUnico.order.customer.fullname;
+                                //if (pedidoUnico.order.additional_fields.Length > 0)
+                                //{
+                                //    BBDDFinal["B" + (icelda)].Value = pedidoUnico.order.additional_fields[0].value;
+                                //}
+                                //if (pedidoUnico.order.shipping_address != null)
+                                //{
+                                //    BBDDFinal["C" + (icelda)].Value = pedidoUnico.order.shipping_address.address;
+                                //}
+                                //else
+                                //{
+                                //    continue;
+                                //}
+                                BBDDFinal.Cell($"A{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                BBDDFinal.Cell($"B{icelda}").Value = productosFactura;
+                                BBDDFinal.Cell($"C{icelda}").Value = boletaFactura.items[a].address;
+                                BBDDFinal.Cell($"D{icelda}").Value = boletaFactura.items[a].municipality;
+                                BBDDFinal.Cell($"E{icelda}").Value = infoUsuario.phone;
+                                BBDDFinal.Cell($"F{icelda}").Value = infoUsuario.email;
+                                //G, H, I y J Generar información de producto con el formato de las boletas de JS
+                                BBDDFinal.Cell($"K{icelda}").Value = "-";
+                                BBDDFinal.Cell($"L{icelda}").Value = infoUsuario.note.ToString();
+                                long fechaEmision = boletaFactura.items[a].emissionDate;
+                                DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(fechaEmision);
+                                BBDDFinal.Cell($"M{icelda}").Value = dateTimeOffset.ToString("dd/MM/yyyy");
+                                //N Vacio
+                                //O es para el repartidor
+                                if (boletaFactura.items[a].address == "Av. Gabriela Oriente 2174")
                                 {
-                                    int indice1 = productos.IndexOf('(');
-                                    int indice2 = productos.IndexOf(')');
-                                    productos.Remove(indice1, (indice2 - indice1));
-                                }
-                                BBDDFinal["G" + (icelda)].Value = productos;
-                                productos = string.Empty;
-                                BBDDFinal["H" + (icelda)].Value = kg;
-                                BBDDFinal["I" + (icelda)].Value = pedidoUnico.order.products[p].qty;
-                                BBDDFinal["J" + (icelda)].Value = pedidoUnico.order.products[p].price;
+                                    BBDDFinal.Cell($"O{icelda}").Value = "Retiro Local";
+                                } 
+                                BBDDFinal.Cell($"P{icelda}").Value = vendedor.firstName + vendedor.lastName;
+                                BBDDFinal.Cell($"Q{icelda}").Value = "Santiago";
+                                BBDDFinal.Cell($"R{icelda}").Value = "F-" + boletaFactura.items[a].number;
                                 icelda = icelda + 1;
                             }
-                            //icelda = icelda + 1;
-                        
-                        workBook.SaveAs($"C:\\Users\\cesar\\Documentos\\Archivo Ruta {today.ToString("dd/MM/yyyy")}.xlsx");                   
-                    
+
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
                 }
             }
+            if (boletasManuales.Count > 0)
+            {
+                foreach (string nf in boletasManuales)
+                {
+                    string productosBoletaManual = string.Empty;
+                    BoletaBsale boletaManual = JsonConvert.DeserializeObject<BoletaBsale>(await consultaBoleta(nf));
+                    for (int a = 0; a < boletaManual.items.Length; a++)
+                    {
+                        if (boletaManual.items[a].document_type.id == "10")
+                        {
+                            InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boletaManual.items[a].client.href));
+                            DetalleBoletasBsale detalleBoletaManual = JsonConvert.DeserializeObject<DetalleBoletasBsale>(await consultasHref(boletaManual.items[a].details.href));
+                            Vendedor vendedor = JsonConvert.DeserializeObject<Vendedor>(await consultasHref(boletaManual.items[a].user.href));
+                            for (int p = 0; p < detalleBoletaManual.items.Length; p++)
+                            {
+                                //productosFactura = string.Empty;
+                                VarianteProductoBsale variante = JsonConvert.DeserializeObject<VarianteProductoBsale>(await consultasHref(detalleBoletaManual.items[p].variant.href));
+                                ProductoBsale productoBsale = JsonConvert.DeserializeObject<ProductoBsale>(await consultasHref(variante.product.href));
+                                //productosFactura = productosFactura + detalleFactura.items[p].quantity + "x " + productoBsale.name + " " + variante.description + ", ";
+                                //G, H, I y J Generar información de producto con el formato de las boletas de JS
+                                BBDDFinal.Cell($"G{icelda}").Value = productoBsale.name;
+                                BBDDFinal.Cell($"H{icelda}").Value = variante.description;
+                                BBDDFinal.Cell($"I{icelda}").Value = detalleBoletaManual.items[p].quantity;
+                                BBDDFinal.Cell($"J{icelda}").Value = detalleBoletaManual.items[p].totalAmount;
+                                //productos = productos + pedidoUnico.order.products[p].name;
+                                //productos = productos.Replace(",", ".");
+                                //string kg = Regex.Match(productos, @"([-+]?[0-9]*\.?[0-9]+)").Value;
+                                //if (productos.Contains("kg") || productos.Contains("Kg") || productos.Contains("KG"))
+                                //{
+                                //    productos = productos.Replace("kg", "");
+                                //    productos = productos.Replace("KG", "");
+                                //    productos = productos.Replace("Kg", "");
+                                //    medida = "Kg";
+                                //}
+                                //if (kg.Trim() != string.Empty)
+                                //{
+                                //    if (productos.Contains($"{kg}g") || productos.Contains($"{kg} g"))
+                                //    {
+                                //        productos = productos.Replace($"{kg}g", "");
+                                //        productos = productos.Replace($"{kg} g", "");
+                                //        medida = "g";
+                                //    }
+                                //}
+                                //else
+                                //{
+                                //    medida = "No Aplica";
+                                //}
+                                //if (productos.Contains(kg) && productos.Contains(kg) != null && kg != string.Empty && !productos.Contains("TOP K"))
+                                //{
+                                //    productos = productos.Replace(kg, "");
+                                //}
+                                //if (productos.Contains("TOP K"))
+                                //{
+                                //    string pesoArenas = productos.Substring(productos.IndexOf('('));
+                                //    string kgArena = Regex.Match(pesoArenas, @"([-+]?[0-9]*\.?[0-9]+)").Value;
+                                //    kg = kgArena;
+                                //}
+                                //if (productos.Contains("("))
+                                //{
+                                //    int indice1 = productos.IndexOf('(');
+                                //    productos = productos.Remove(indice1);
+                                //}
+                                //BBDDFinal["A" + (icelda)].Value = pedidoUnico.order.customer.fullname;
+                                //if (pedidoUnico.order.additional_fields.Length > 0)
+                                //{
+                                //    BBDDFinal["B" + (icelda)].Value = pedidoUnico.order.additional_fields[0].value;
+                                //}
+                                //if (pedidoUnico.order.shipping_address != null)
+                                //{
+                                //    BBDDFinal["C" + (icelda)].Value = pedidoUnico.order.shipping_address.address;
+                                //}
+                                //else
+                                //{
+                                //    continue;
+                                //}
+                                BBDDFinal.Cell($"A{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                BBDDFinal.Cell($"B{icelda}").Value = productosBoletaManual;
+                                BBDDFinal.Cell($"C{icelda}").Value = boletaManual.items[a].address;
+                                BBDDFinal.Cell($"D{icelda}").Value = boletaManual.items[a].municipality;
+                                BBDDFinal.Cell($"E{icelda}").Value = infoUsuario.phone;
+                                BBDDFinal.Cell($"F{icelda}").Value = infoUsuario.email;
+                                //G, H, I y J Generar información de producto con el formato de las boletas de JS
+                                BBDDFinal.Cell($"K{icelda}").Value = "-";
+                                if (infoUsuario.note == null)
+                                {
+                                    BBDDFinal.Cell($"L{icelda}").Value = "-";
+                                } else
+                                {
+                                    BBDDFinal.Cell($"L{icelda}").Value = infoUsuario.note.ToString();
+                                }                                
+                                long fechaEmision = boletaManual.items[a].emissionDate;
+                                DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(fechaEmision);
+                                BBDDFinal.Cell($"M{icelda}").Value = dateTimeOffset.ToString("dd/MM/yyyy");
+                                //N Vacio
+                                //O es para el repartidor
+                                if (boletaManual.items[a].address == "Av. Gabriela Oriente 2174")
+                                {
+                                    BBDDFinal.Cell($"O{icelda}").Value = "Retiro Local";
+                                }                               
+                                BBDDFinal.Cell($"P{icelda}").Value = vendedor.firstName + vendedor.lastName;
+                                BBDDFinal.Cell($"Q{icelda}").Value = "Santiago";
+                                BBDDFinal.Cell($"R{icelda}").Value = "BM-" + boletaManual.items[a].number;
+                                icelda = icelda + 1;
+                            }
+
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                }
+            }
+            if (boletasElectronicas.Count > 0)
+            {
+                foreach (string nf in boletasElectronicas)
+                {
+                    string productosBoletaElectronica = string.Empty;
+                    BoletaBsale boletaElectronica = JsonConvert.DeserializeObject<BoletaBsale>(await consultaBoleta(nf));
+                    for (int a = 0; a < boletaElectronica.items.Length; a++)
+                    {
+                        if (boletaElectronica.items[a].document_type.id == "1")
+                        {
+                            InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boletaElectronica.items[a].client.href));
+                            DetalleBoletasBsale detalleBoletaElectronica = JsonConvert.DeserializeObject<DetalleBoletasBsale>(await consultasHref(boletaElectronica.items[a].details.href));
+                            Vendedor vendedor = JsonConvert.DeserializeObject<Vendedor>(await consultasHref(boletaElectronica.items[a].user.href));
+                            for (int p = 0; p < detalleBoletaElectronica.items.Length; p++)
+                            {
+                                //productosFactura = string.Empty;
+                                VarianteProductoBsale variante = JsonConvert.DeserializeObject<VarianteProductoBsale>(await consultasHref(detalleBoletaElectronica.items[p].variant.href));
+                                ProductoBsale productoBsale = JsonConvert.DeserializeObject<ProductoBsale>(await consultasHref(variante.product.href));
+                                //productosFactura = productosFactura + detalleFactura.items[p].quantity + "x " + productoBsale.name + " " + variante.description + ", ";
+                                //G, H, I y J Generar información de producto con el formato de las boletas de JS
+                                BBDDFinal.Cell($"G{icelda}").Value = productoBsale.name;
+                                BBDDFinal.Cell($"H{icelda}").Value = variante.description;
+                                BBDDFinal.Cell($"I{icelda}").Value = detalleBoletaElectronica.items[p].quantity;
+                                BBDDFinal.Cell($"J{icelda}").Value = detalleBoletaElectronica.items[p].totalAmount;
+                                //productos = productos + pedidoUnico.order.products[p].name;
+                                //productos = productos.Replace(",", ".");
+                                //string kg = Regex.Match(productos, @"([-+]?[0-9]*\.?[0-9]+)").Value;
+                                //if (productos.Contains("kg") || productos.Contains("Kg") || productos.Contains("KG"))
+                                //{
+                                //    productos = productos.Replace("kg", "");
+                                //    productos = productos.Replace("KG", "");
+                                //    productos = productos.Replace("Kg", "");
+                                //    medida = "Kg";
+                                //}
+                                //if (kg.Trim() != string.Empty)
+                                //{
+                                //    if (productos.Contains($"{kg}g") || productos.Contains($"{kg} g"))
+                                //    {
+                                //        productos = productos.Replace($"{kg}g", "");
+                                //        productos = productos.Replace($"{kg} g", "");
+                                //        medida = "g";
+                                //    }
+                                //}
+                                //else
+                                //{
+                                //    medida = "No Aplica";
+                                //}
+                                //if (productos.Contains(kg) && productos.Contains(kg) != null && kg != string.Empty && !productos.Contains("TOP K"))
+                                //{
+                                //    productos = productos.Replace(kg, "");
+                                //}
+                                //if (productos.Contains("TOP K"))
+                                //{
+                                //    string pesoArenas = productos.Substring(productos.IndexOf('('));
+                                //    string kgArena = Regex.Match(pesoArenas, @"([-+]?[0-9]*\.?[0-9]+)").Value;
+                                //    kg = kgArena;
+                                //}
+                                //if (productos.Contains("("))
+                                //{
+                                //    int indice1 = productos.IndexOf('(');
+                                //    productos = productos.Remove(indice1);
+                                //}
+                                //BBDDFinal["A" + (icelda)].Value = pedidoUnico.order.customer.fullname;
+                                //if (pedidoUnico.order.additional_fields.Length > 0)
+                                //{
+                                //    BBDDFinal["B" + (icelda)].Value = pedidoUnico.order.additional_fields[0].value;
+                                //}
+                                //if (pedidoUnico.order.shipping_address != null)
+                                //{
+                                //    BBDDFinal["C" + (icelda)].Value = pedidoUnico.order.shipping_address.address;
+                                //}
+                                //else
+                                //{
+                                //    continue;
+                                //}
+                                BBDDFinal.Cell($"A{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                BBDDFinal.Cell($"B{icelda}").Value = productosBoletaElectronica;
+                                BBDDFinal.Cell($"C{icelda}").Value = boletaElectronica.items[a].address;
+                                BBDDFinal.Cell($"D{icelda}").Value = boletaElectronica.items[a].municipality;
+                                BBDDFinal.Cell($"E{icelda}").Value = infoUsuario.phone;
+                                BBDDFinal.Cell($"F{icelda}").Value = infoUsuario.email;
+                                //G, H, I y J Generar información de producto con el formato de las boletas de JS
+                                BBDDFinal.Cell($"K{icelda}").Value = "-";
+                                BBDDFinal.Cell($"L{icelda}").Value = infoUsuario.note.ToString();
+                                long fechaEmision = boletaElectronica.items[a].emissionDate;
+                                DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(fechaEmision);
+                                BBDDFinal.Cell($"M{icelda}").Value = dateTimeOffset.ToString("dd/MM/yyyy");
+                                //N Vacio
+                                //O es para el repartidor
+                                if (boletaElectronica.items[a].address == "Av. Gabriela Oriente 2174")
+                                {
+                                    BBDDFinal.Cell($"O{icelda}").Value = "Retiro Local";
+                                }                               
+                                BBDDFinal.Cell($"P{icelda}").Value = vendedor.firstName + vendedor.lastName;
+                                BBDDFinal.Cell($"Q{icelda}").Value = "Santiago";
+                                BBDDFinal.Cell($"R{icelda}").Value = "BE-" + boletaElectronica.items[a].number;
+                                icelda = icelda + 1;
+                            }
+
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                }
+            }
+            var IndiceBBDDFinal = BBDDFinal.Cell($"R{indiceBusqueda}").GetValue<string>();
+            var IndiceRutas = Rutas.Cell($"A{indicePedido}").GetValue<string>();
+            while (IndiceBBDDFinal != string.Empty)
+            {
+                while (IndiceRutas != string.Empty)
+                {
+                    if (IndiceBBDDFinal == IndiceRutas)
+                    {
+                        string Repartidor = Rutas.Cell($"F{indicePedido}").GetValue<string>();
+                        BBDDFinal.Cell($"O{indiceBusqueda}").Value = Repartidor;
+                        break;
+                    } else
+                    {
+                        indicePedido++;
+                        IndiceRutas = Rutas.Cell($"A{indicePedido}").GetValue<string>();
+                    }
+                    
+                }
+                indiceBusqueda++;
+                IndiceBBDDFinal = BBDDFinal.Cell($"R{indiceBusqueda}").GetValue<string>();
+                indicePedido = 1;
+                IndiceRutas = Rutas.Cell($"A{indicePedido}").GetValue<string>();
+            }
+
+            workBook.SaveAs($"C:\\Users\\cesar\\Documentos\\Archivo Ruta {today.ToString("dd/MM/yyyy")}.xlsx");
         }
     }
+}

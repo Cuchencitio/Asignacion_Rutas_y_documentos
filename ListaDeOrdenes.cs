@@ -47,7 +47,7 @@ namespace AutomatizacionRutas
         public string? status_enum { get; set; }
         public Promotion[] promotions { get; set; }
         public Customer customer { get; set; }
-        public Shipping_Address? shipping_address { get; set; }
+        public Shipping_Address shipping_address { get; set; }
         public Billing_Address billing_address { get; set; }
         public Product[] products { get; set; }
         public Additional_Fields[] additional_fields { get; set; }

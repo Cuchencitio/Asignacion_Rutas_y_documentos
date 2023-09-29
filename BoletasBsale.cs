@@ -19,7 +19,7 @@ namespace AutomatizacionRutas
     {
         public string? href { get; set; }
         public int? id { get; set; }
-        public int? emissionDate { get; set; }
+        public long emissionDate { get; set; }
         public int? expirationDate { get; set; }
         public int? generationDate { get; set; }
         public int? rcofDate { get; set; }
