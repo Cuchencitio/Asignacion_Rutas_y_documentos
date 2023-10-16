@@ -38,7 +38,7 @@ namespace AutomatizacionRutas
         public int? createdAt { get; set; }
         public int? updatedAt { get; set; }
         public Contacts contacts { get; set; }
-        public Attributes attributes { get; set; }
+        public Attributes? attributes { get; set; }
         public Addresses addresses { get; set; }
     }
 
@@ -50,6 +50,20 @@ namespace AutomatizacionRutas
     public class Attributes
     {
         public string? href { get; set; }
+        public int? count { get; set; }
+        public int? limit { get; set; }
+        public int? offset { get; set; }
+        public Item[]? items { get; set; }
+
+
+        public class Item
+        {
+            public string? href { get; set; }
+            public int? id { get; set; }
+            public string? name { get; set; }
+            public string? value { get; set; }
+        }
+
     }
 
     public class Addresses

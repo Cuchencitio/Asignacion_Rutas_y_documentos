@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
-  <asmv1:assemblyIdentity name="AutomatizacionRutas.exe" version="1.0.0.0" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
+  <asmv1:assemblyIdentity name="AutomatizacionRutas.exe" version="1.0.0.1" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
   <application />
   <entryPoint>
     <assemblyIdentity name="Launcher" version="8.0.0.0" language="neutral" processorArchitecture="msil" />
@@ -449,22 +449,22 @@
       <dsig:DigestValue>TnHJVd4KnnHs1nSdc/bwc2S+o0wSWmEmGp7+K3a6mOU=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="AutomatizacionRutas.deps.json" size="129632">
+  <file name="AutomatizacionRutas.deps.json" size="129912">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>DV1ixIOScRUzxE2x/qCrEOOknT1dmnF0asmudJ6mfvU=</dsig:DigestValue>
+      <dsig:DigestValue>dABiiIhnPdE9btQj5ESMWomfXs0K1+74dTA53O/zRKQ=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="AutomatizacionRutas.dll" size="185344">
+  <file name="AutomatizacionRutas.dll" size="210944">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>ZrkXrT62JdZ9Z9o2nrXOukQCAdOZCxTd93mhOaXsoLM=</dsig:DigestValue>
+      <dsig:DigestValue>tmBsk2ytGIfKeITl3obv0BMHFRa7qbJwlkbJeQnFxTU=</dsig:DigestValue>
     </hash>
   </file>
   <file name="AutomatizacionRutas.exe" size="114688">
@@ -485,13 +485,13 @@
       <dsig:DigestValue>JqHCDZY5WbCsu2P6Dz8bePkB4aD8RSFrn0zG6iKS+QU=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="BitMiracle.LibTiff.NET.dll" size="1503232">
+  <file name="ClosedXML.dll" size="3556864">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>J6Ue4lk7vpdbokcUl90WGoq7w0AMep1BmQpsoMuL3M8=</dsig:DigestValue>
+      <dsig:DigestValue>eTFxs2w/84Q6z3MC8slIEr0XThjZ0z6QCK0jvDHQ5QA=</dsig:DigestValue>
     </hash>
   </file>
   <file name="clretwrc.dll" size="304800">
@@ -863,6 +863,15 @@
       <dsig:DigestValue>Wzc7JwMHW08oA0FBkccv/z32kMywOKxO66RMJeUMXRs=</dsig:DigestValue>
     </hash>
   </file>
+  <file name="DocumentFormat.OpenXml.dll" size="15848960">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>b8gGbpDCkAHOmAtOdJHt7gXqQk02VGZqKD+bfKH26tM=</dsig:DigestValue>
+    </hash>
+  </file>
   <file name="es\Microsoft.VisualBasic.Forms.resources.dll" size="25760">
     <hash>
       <dsig:Transforms>
@@ -1014,6 +1023,15 @@
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
       <dsig:DigestValue>gPM7objk0zQNybQrIGirPSnAFz5hZaiFv0rC7M4zRU0=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="ExcelNumberFormat.dll" size="75776">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>Dk5chctWrmOTWjALfuJ26zgsV8TwuvLqYNG4ZOcz/E4=</dsig:DigestValue>
     </hash>
   </file>
   <file name="fr\Microsoft.VisualBasic.Forms.resources.dll" size="25760">
@@ -1187,22 +1205,13 @@
       <dsig:DigestValue>Y0Wi4boF5sTbLzbDZk2NtqZmW5mwMoADvDkL960d2tY=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="IronSoftware.Drawing.Common.dll" size="156672">
+  <file name="Irony.dll" size="338944">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>CgK/K0jaSu26r62Ld1Ap1CZMMs2JkK3+x/PylckdTkI=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="IronXL.dll" size="41811968">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>D7X1vM3K9kc89IomLXOMrcS4V1bQhSUzibPoHlXbKdY=</dsig:DigestValue>
+      <dsig:DigestValue>KdqcPdSLmbSP+dCuxQbALIa0WNFRgFedGuNSX0mqwQg=</dsig:DigestValue>
     </hash>
   </file>
   <file name="it\Microsoft.VisualBasic.Forms.resources.dll" size="25760">
@@ -2472,24 +2481,6 @@
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
       <dsig:DigestValue>PBbKdHEqqUWRerqMBEgpwMnlSys+/9bvBk7/IXtGdUg=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="SixLabors.ImageSharp.dll" size="34928640">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>RBebNfHq+IAW0bRoZDDl3TocVlwibrGawv9xoJZcOzQ=</dsig:DigestValue>
-    </hash>
-  </file>
-  <file name="SixLabors.ImageSharp.Drawing.dll" size="640000">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>Y4LJkgjSCu76/pDG+9Ltqyx4cRZwNAzkwhfjczbHSNs=</dsig:DigestValue>
     </hash>
   </file>
   <file name="System.AppContext.dll" size="15520">
@@ -4380,6 +4371,15 @@
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
       <dsig:DigestValue>cEkXHRFAVJYjQT9Y4TnZMW8GLx7AToGa01A34VbUowU=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="XLParser.dll" size="105472">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>yPmOTpVhNg9NRWtbrkOxMImza9WR9d5ahPRVy8OJzrc=</dsig:DigestValue>
     </hash>
   </file>
   <file name="zh-Hans\Microsoft.VisualBasic.Forms.resources.dll" size="25248">
