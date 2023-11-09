@@ -59,3 +59,4 @@ C:\Users\cesar\source\repos\AutomatizacionRutas\Asignacion_Rutas_y_documentos\bi
 C:\Users\cesar\source\repos\AutomatizacionRutas\Asignacion_Rutas_y_documentos\bin\Debug\net6.0-windows\ExcelNumberFormat.dll
 C:\Users\cesar\source\repos\AutomatizacionRutas\Asignacion_Rutas_y_documentos\bin\Debug\net6.0-windows\Irony.dll
 C:\Users\cesar\source\repos\AutomatizacionRutas\Asignacion_Rutas_y_documentos\bin\Debug\net6.0-windows\XLParser.dll
+C:\Users\cesar\source\repos\AutomatizacionRutas\Asignacion_Rutas_y_documentos\obj\Debug\net6.0-windows\AutomatizacionRutas.Properties.Resources.resources
