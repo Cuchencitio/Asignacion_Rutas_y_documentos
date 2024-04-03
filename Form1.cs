@@ -31,20 +31,20 @@ namespace AutomatizacionRutas
     {
         DateTime today = DateTime.Today;
         int?[] idGalloNegro = { 453817, 457736 };
-        string[] tono = { "las condes", "vitacura", "la reina", "lo barnechea", "ñuñoa", "ñuñoa ", "providencia", "san joaquin", "san joaquín", "vitacura", "la reina", "Toño" };
-        string[] ricardo = { "la cisterna", "la granja", "lo espejo", "pedro aguirre cerda", "san miguel", "san ramon", "san ramón", "san ramón ", "san ramon ", "la cisterna", "Ricardo" };
+        string[] tono = { "las condes", "vitacura", "la reina", "lo barnechea", "Ã±uÃ±oa", "Ã±uÃ±oa ", "providencia", "san joaquin", "san joaquÃ­n", "vitacura", "la reina", "ToÃ±o" };
+        string[] ricardo = { "la cisterna", "la granja", "lo espejo", "pedro aguirre cerda", "san miguel", "san ramon", "san ramÃ³n", "san ramÃ³n ", "san ramon ", "la cisterna", "Ricardo" };
         string[] victor = { "independencia", "quinta normal", "quinta normal ", "recoleta", "recoleta ", "santiago", "santiago centro", "Victor" };
-        string[] sebastian = { "lo prado", "huechuraba", "conchali", "conchalí", "renca", "cerro navia", "pudahuel", "quilicura", "Sebastian" };
-        string[] javiera = { "la florida", "macul", "peñalolen", "peñalolén", "la florida ", "Javiera" };
-        string[] christian = { "cerrillos", "estación central", "estacion central", "maipú", "maipu", "maipú ", "maipu ", "Christian" };
+        string[] sebastian = { "lo prado", "huechuraba", "conchali", "conchalÃ­", "renca", "cerro navia", "pudahuel", "quilicura", "Sebastian" };
+        string[] javiera = { "la florida", "macul", "peÃ±alolen", "peÃ±alolÃ©n", "la florida ", "Javiera" };
+        string[] christian = { "cerrillos", "estaciÃ³n central", "estacion central", "maipÃº", "maipu", "maipÃº ", "maipu ", "Christian" };
         string[] ana = { "puente alto", "el bosque", "la pintana", "san bernardo", "san bernardo ", "puente alto ", "la pintana ", "Ana" };
 
-        string[] comunasRM = { "las condes", "vitacura", "la reina", "lo barnechea", "ñuñoa", "providencia", "san joaquin", "san joaquín", "vitacura", "la reina",
-                               "la cisterna", "la granja", "lo espejo", "pedro aguirre cerda", "san miguel", "san ramon", "san ramón", "san ramón ", "la cisterna",
+        string[] comunasRM = { "las condes", "vitacura", "la reina", "lo barnechea", "Ã±uÃ±oa", "providencia", "san joaquin", "san joaquÃ­n", "vitacura", "la reina",
+                               "la cisterna", "la granja", "lo espejo", "pedro aguirre cerda", "san miguel", "san ramon", "san ramÃ³n", "san ramÃ³n ", "la cisterna",
                                "independencia", "quinta normal", "recoleta", "santiago", "santiago centro",
-                               "lo prado", "huechuraba", "conchali", "conchalí", "renca", "cerro navia", "pudahuel", "quilicura",
-                               "la florida", "macul", "peñalolen", "peñalolén",
-                               "cerrillos", "estación central", "estacion central", "maipú", "maipu",
+                               "lo prado", "huechuraba", "conchali", "conchalÃ­", "renca", "cerro navia", "pudahuel", "quilicura",
+                               "la florida", "macul", "peÃ±alolen", "peÃ±alolÃ©n",
+                               "cerrillos", "estaciÃ³n central", "estacion central", "maipÃº", "maipu",
                                "puente alto", "el bosque", "la pintana", "san bernardo", "puente alto "};
         List<String> facturas = new List<String>();
         List<String> boletasManuales = new List<String>();
@@ -82,21 +82,21 @@ namespace AutomatizacionRutas
         public async Task<string> consultaBoleta(string boletaManual)
         {
             string url = $"https://api.bsale.cl/v1/documents.json?number={boletaManual}";
-            string token = "ad7834766bf55dfd07d1fb70d81e3db3a179f829";
+            string token = "";
             string consulta = await GetHttpBsale(url, token);
             return consulta;
         }
         public async Task<string> consultasHref(string href)
         {
             string url = href;
-            string token = "ad7834766bf55dfd07d1fb70d81e3db3a179f829";
+            string token = "";
             string consulta = await GetHttpBsale(url, token);
             return consulta;
         }
         public async Task<string> consultasHrefexpand(string href, string expand)
         {
             string url = href + expand;
-            string token = "ad7834766bf55dfd07d1fb70d81e3db3a179f829";
+            string token = "";
             string consulta = await GetHttpBsale(url, token);
             return consulta;
         }
@@ -140,7 +140,7 @@ namespace AutomatizacionRutas
         }
         public async Task<string> ConsultaPedidoUnico(string id)
         {
-            string consultaOrdenes = $"https://api.jumpseller.com/v1/orders/{id}.json?login=6e0af5429c314830f7307a63298f2249&authtoken=59d8fd6f0f60dd72307e38b09078f594";
+            string consultaOrdenes = $"https://api.jumpseller.com/v1/orders/{id}.json?login=&authtoken=";
             string respuesta = await GetHttp(consultaOrdenes);
             return respuesta;
         }
@@ -168,7 +168,7 @@ namespace AutomatizacionRutas
                 await Task.Run(() => LoadExcel());
                 int ipagina = 1;
                 string id = textBox_id_consulta.Text;
-                string consultaOrdenes = $"https://api.jumpseller.com/v1/orders/after/{id}.json?login=6e0af5429c314830f7307a63298f2249&authtoken=59d8fd6f0f60dd72307e38b09078f594&page={ipagina}&limit=100";
+                string consultaOrdenes = $"https://api.jumpseller.com/v1/orders/after/{id}.json?login=&authtoken=&page={ipagina}&limit=100";
                 string respuesta = await GetHttp(consultaOrdenes);
                 Class1[] lista = JsonConvert.DeserializeObject<Class1[]>(respuesta);
                 var Ruta = workBook.AddWorksheet("Ruta");
@@ -277,7 +277,7 @@ namespace AutomatizacionRutas
                         }
                         ipagina++;
                         id = textBox_id_consulta.Text;
-                        consultaOrdenes = $"https://api.jumpseller.com/v1/orders/after/{id}.json?login=6e0af5429c314830f7307a63298f2249&authtoken=59d8fd6f0f60dd72307e38b09078f594&page={ipagina}&limit=100";
+                        consultaOrdenes = $"https://api.jumpseller.com/v1/orders/after/{id}.json?login=&authtoken=&page={ipagina}&limit=100";
                         respuesta = await GetHttp(consultaOrdenes);
                         lista = JsonConvert.DeserializeObject<Class1[]>(respuesta);
 
@@ -378,10 +378,10 @@ namespace AutomatizacionRutas
                                     productosFactura = detalleFactura.items[p].quantity + "x " + productoBsale.name + " " + variante.description + " x $";
                                     if (boletaFactura.items[a].client == null)
                                     {
-                                        Ruta.Cell($"L{icelda}").Value = "Sin información";
-                                        Ruta.Cell($"B{icelda}").Value = "Sin información";
-                                        Ruta.Cell($"M{icelda}").Value = "Sin información";
-                                        Ruta.Cell($"K{icelda}").Value = "Sin información";
+                                        Ruta.Cell($"L{icelda}").Value = "Sin informaciÃ³n";
+                                        Ruta.Cell($"B{icelda}").Value = "Sin informaciÃ³n";
+                                        Ruta.Cell($"M{icelda}").Value = "Sin informaciÃ³n";
+                                        Ruta.Cell($"K{icelda}").Value = "Sin informaciÃ³n";
                                     } else
                                     {
                                         InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boletaFactura.items[a].client.href));
@@ -461,10 +461,10 @@ namespace AutomatizacionRutas
                                     productosManual = detalleBoleta.items[p].quantity + "x " + productoBsale.name + " " + variante.description + " x $";
                                     if (boletaManual.items[a].client == null)
                                     {
-                                        Ruta.Cell($"L{icelda}").Value = "Sin información";
-                                        Ruta.Cell($"B{icelda}").Value = "Sin información";
-                                        Ruta.Cell($"M{icelda}").Value = "Sin información";
-                                        Ruta.Cell($"K{icelda}").Value = "Sin información";
+                                        Ruta.Cell($"L{icelda}").Value = "Sin informaciÃ³n";
+                                        Ruta.Cell($"B{icelda}").Value = "Sin informaciÃ³n";
+                                        Ruta.Cell($"M{icelda}").Value = "Sin informaciÃ³n";
+                                        Ruta.Cell($"K{icelda}").Value = "Sin informaciÃ³n";
                                     }
                                     else
                                     {
@@ -544,10 +544,10 @@ namespace AutomatizacionRutas
                                     productosElectronica = detalleBoleta.items[p].quantity + "x " + productoBsale.name + " " + variante.description + " x $";
                                     if (boleta.items[i].client == null)
                                     {
-                                        Ruta.Cell($"L{icelda}").Value = "Sin información";
-                                        Ruta.Cell($"B{icelda}").Value = "Sin información";
-                                        Ruta.Cell($"M{icelda}").Value = "Sin información";
-                                        Ruta.Cell($"K{icelda}").Value = "Sin información";
+                                        Ruta.Cell($"L{icelda}").Value = "Sin informaciÃ³n";
+                                        Ruta.Cell($"B{icelda}").Value = "Sin informaciÃ³n";
+                                        Ruta.Cell($"M{icelda}").Value = "Sin informaciÃ³n";
+                                        Ruta.Cell($"K{icelda}").Value = "Sin informaciÃ³n";
                                     } else
                                     {
                                         InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boleta.items[i].client.href));
@@ -727,7 +727,7 @@ namespace AutomatizacionRutas
             BBDDFinal.Cell("O1").Style.Fill.SetBackgroundColor(XLColor.Orange);
             BBDDFinal.Cell("P1").Value = "Fecha venta";
             BBDDFinal.Cell("P1").Style.Fill.SetBackgroundColor(XLColor.Orange);
-            BBDDFinal.Cell("Q1").Value = "Forma de envío";
+            BBDDFinal.Cell("Q1").Value = "Forma de envÃ­o";
             BBDDFinal.Cell("Q1").Style.Fill.SetBackgroundColor(XLColor.Orange);
             BBDDFinal.Cell("R1").Value = "Repatidor";
             BBDDFinal.Cell("R1").Style.Fill.SetBackgroundColor(XLColor.Orange);
@@ -774,7 +774,7 @@ namespace AutomatizacionRutas
             reBBDDFinal.Cell("O1").Style.Fill.SetBackgroundColor(XLColor.Orange);
             reBBDDFinal.Cell("P1").Value = "Fecha venta";
             reBBDDFinal.Cell("P1").Style.Fill.SetBackgroundColor(XLColor.Orange);
-            reBBDDFinal.Cell("Q1").Value = "Forma de envío";
+            reBBDDFinal.Cell("Q1").Value = "Forma de envÃ­o";
             reBBDDFinal.Cell("Q1").Style.Fill.SetBackgroundColor(XLColor.Orange);
             reBBDDFinal.Cell("R1").Value = "Repatidor";
             reBBDDFinal.Cell("R1").Style.Fill.SetBackgroundColor(XLColor.Orange);
@@ -1283,7 +1283,7 @@ namespace AutomatizacionRutas
             var Repartidor = BBDDFinal.Cell($"R{indiceBusqueda}").GetValue<string>();
             var Mascota = BBDDFinal.Cell($"C{indiceBusqueda}").GetValue<string>();
             var Direccion = BBDDFinal.Cell($"D{indiceBusqueda}").GetValue<string>() + ", " + BBDDFinal.Cell($"D{indiceBusqueda}").GetValue<string>();
-            NombresMascotas.Cell("A1").Value = "Dirección";
+            NombresMascotas.Cell("A1").Value = "DirecciÃ³n";
             NombresMascotas.Cell("A1").Style.Fill.SetBackgroundColor(XLColor.Orange);
             NombresMascotas.Cell("B1").Value = "Nombre Mascota";
             NombresMascotas.Cell("B1").Style.Fill.SetBackgroundColor(XLColor.Orange);
@@ -1338,7 +1338,7 @@ namespace AutomatizacionRutas
 
             //string idPedido = textBox_id_pedido.Text;
             //string comentario = textBox_notas.Text;
-            //string url = $"https://api.jumpseller.com/v1/orders/{idPedido}.json?login=6e0af5429c314830f7307a63298f2249&authtoken=59d8fd6f0f60dd72307e38b09078f594";
+            //string url = $"https://api.jumpseller.com/v1/orders/{idPedido}.json?login=&authtoken=";
             //ConsultaOrden ObjetoPost = new ConsultaOrden()
             //{
             //    order = new Order
@@ -1368,7 +1368,7 @@ namespace AutomatizacionRutas
             if (cmb_tipo_documento.Text == "Jumpseller")
             {
 
-                string consultaOrdenes = $"https://api.jumpseller.com/v1/orders/{id}.json?login=6e0af5429c314830f7307a63298f2249&authtoken=59d8fd6f0f60dd72307e38b09078f594";
+                string consultaOrdenes = $"https://api.jumpseller.com/v1/orders/{id}.json?login=&authtoken=";
                 string respuesta = await GetHttp(consultaOrdenes);
                 SO singleorder = JsonConvert.DeserializeObject<SO>(respuesta);
                 MultiProducto.Add(singleorder);
