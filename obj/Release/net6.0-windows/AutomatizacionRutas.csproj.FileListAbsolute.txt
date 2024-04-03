@@ -30,3 +30,4 @@ C:\Users\cesar\source\repos\AutomatizacionRutas\Asignacion_Rutas_y_documentos\bi
 C:\Users\cesar\source\repos\AutomatizacionRutas\Asignacion_Rutas_y_documentos\obj\Release\net6.0-windows\Interop.Microsoft.Office.Interop.Excel.dll
 C:\Users\cesar\source\repos\AutomatizacionRutas\Asignacion_Rutas_y_documentos\obj\Release\net6.0-windows\Interop.MSXML2.dll
 C:\Users\cesar\source\repos\AutomatizacionRutas\Asignacion_Rutas_y_documentos\obj\Release\net6.0-windows\AutomatizacionRutas.csproj.ResolveComReference.cache
+C:\Users\cesar\source\repos\AutomatizacionRutas\Asignacion_Rutas_y_documentos\obj\Release\net6.0-windows\AutomatizacionRutas.Properties.Resources.resources

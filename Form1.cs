@@ -51,6 +51,8 @@ namespace AutomatizacionRutas
         List<String> boletasElectronicas = new List<String>();
         List<String> rebotados = new List<String>();
         List<Class1> listaJS = new List<Class1>();
+        List<SO> MultiProducto = new List<SO>();
+        List<MultiproductoBsale> MultiproductoBsale = new List<MultiproductoBsale>();
         int icelda = 2;
         XLWorkbook workBook = new XLWorkbook();
         int indice = 0;
@@ -60,9 +62,18 @@ namespace AutomatizacionRutas
         int costoEnvio = 2000;
         int ipedido = 1;
         int contadorPedido = 0;
+        bool multiProducto = false;
+        int indiceMultiProducto = 0;
+        int totalmultiproducto = 0;
+        int contadorResagados = 2;
+        string medioPagoRe = string.Empty;
+        string vendedorRe = string.Empty;
+
         public Form1()
         {
             InitializeComponent();
+            btn_producto_anterior.Enabled = false;
+            btn_producto_siguiente.Enabled = false;
         }
         private void LoadExcel()
         {
@@ -109,6 +120,23 @@ namespace AutomatizacionRutas
             HttpWebResponse respuesta = peticion.GetResponse() as HttpWebResponse;
             StreamReader reader = new StreamReader(respuesta.GetResponseStream());
             return await reader.ReadToEndAsync();
+        }
+        public void Clear()
+        {
+            txt_nombre_re.Text = string.Empty;
+            txt_nombre_mascota_re.Text = string.Empty;
+            txt_direccion_re.Text = string.Empty;
+            txt_comuna_re.Text = string.Empty;
+            txt_telefono_re.Text = string.Empty;
+            txt_correo_re.Text = string.Empty;
+            txt_peso_re.Text = string.Empty;
+            txt_cantidad_re.Text = string.Empty;
+            txt_producto_re.Text = string.Empty;
+            txt_total_re.Text = string.Empty;
+            txt_notas_re.Text = string.Empty;
+            txt_forma_envio_re.Text = string.Empty;
+            txt_repartidor_re.Text = string.Empty;
+
         }
         public async Task<string> ConsultaPedidoUnico(string id)
         {
@@ -180,7 +208,7 @@ namespace AutomatizacionRutas
 
                         for (int i = 0; i < lista.Length; i++)
                         {
-                            if (lista[i].order.status == "Paid" && lista[i].order.payment_method_name != "Mercadolibre" && lista[i].order.shipping_method_name != "Retiro en Local" && lista[i].order.shipment_status != "No Aplicable")
+                            if (lista[i].order.status == "Paid" && lista[i].order.payment_method_name != "Mercadolibre" && lista[i].order.shipping_method_id != 159655 && lista[i].order.shipment_status != "No Aplicable")
                             {
 
                                 for (int p = 0; p < lista[i].order.products.Length; p++)
@@ -192,8 +220,8 @@ namespace AutomatizacionRutas
                                     Ruta.Cell($"C{icelda}").Value = lista[i].order.shipping_address.address + ", " + lista[i].order.shipping_address.municipality + ", " + lista[i].order.shipping_address.complement;
                                     Ruta.Cell($"L{icelda}").Value = lista[i].order.customer.phone_prefix + lista[i].order.customer.phone;
                                     Ruta.Cell($"H{icelda}").Value = 1;
-                                    Ruta.Cell($"I{icelda}").Value = "14:00";
-                                    Ruta.Cell($"J{icelda}").Value = "22:00";
+                                    Ruta.Cell($"I{icelda}").Value = "00:00";
+                                    Ruta.Cell($"J{icelda}").Value = "23:59";
                                     Ruta.Cell($"M{icelda}").Value = lista[i].order.shipping_address.complement;
                                     Ruta.Cell($"K{icelda}").Value = lista[i].order.customer.email;
                                     Ruta.Cell($"M{icelda}").Value = lista[i].order.customer.fullname;
@@ -270,54 +298,63 @@ namespace AutomatizacionRutas
                             productos = pedidoUnico.order.products[p].qty + "x " + pedidoUnico.order.products[p].name + " x $" + (pedidoUnico.order.products[p].price - pedidoUnico.order.products[p].discount);
                             Ruta.Cell($"E{icelda}").Value = productos;
                             Ruta.Cell($"B{icelda}").Value = pedidoUnico.order.customer.fullname;
-                            Ruta.Cell($"C{icelda}").Value = pedidoUnico.order.shipping_address.address + ", " + pedidoUnico.order.shipping_address.municipality + ", " + pedidoUnico.order.shipping_address.complement;
+                            if (pedidoUnico.order.shipping_address == null)
+                            {
+                                Ruta.Cell($"C{icelda}").Value = "-";
+                                Ruta.Cell($"M{icelda}").Value = "-";
+                                Ruta.Cell($"N{icelda}").Value = "-";
+                            } else
+                            {
+                                Ruta.Cell($"C{icelda}").Value = pedidoUnico.order.shipping_address.address + ", " + pedidoUnico.order.shipping_address.municipality + ", " + pedidoUnico.order.shipping_address.complement;
+                                Ruta.Cell($"M{icelda}").Value = pedidoUnico.order.shipping_address.complement;
+                                if (tono.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
+                                {
+                                    Ruta.Cell($"N{icelda}").Value = tono[tono.Length - 1];
+                                }
+                                else if (ricardo.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
+                                {
+                                    Ruta.Cell($"N{icelda}").Value = ricardo[ricardo.Length - 1];
+                                }
+                                else if (ana.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
+                                {
+                                    Ruta.Cell($"N{icelda}").Value = ana[ana.Length - 1];
+                                }
+                                else if (javiera.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
+                                {
+                                    Ruta.Cell($"N{icelda}").Value = javiera[javiera.Length - 1];
+                                }
+                                else if (christian.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
+                                {
+                                    Ruta.Cell($"N{icelda}").Value = christian[christian.Length - 1];
+                                }
+                                else if (sebastian.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
+                                {
+                                    Ruta.Cell($"N{icelda}").Value = sebastian[sebastian.Length - 1];
+                                }
+                                else if (victor.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
+                                {
+                                    Ruta.Cell($"N{icelda}").Value = victor[victor.Length - 1];
+                                }
+                                else if (idGalloNegro.Contains(pedidoUnico.order.shipping_method_id))
+                                {
+                                    Ruta.Cell($"N{icelda}").Value = "Gallo Negro";
+                                }
+                                else if (pedidoUnico.order.shipping_method_id == 159663)
+                                {
+                                    Ruta.Cell($"N{icelda}").Value = pedidoUnico.order.shipping_method_name;
+                                }
+                            }
                             Ruta.Cell($"L{icelda}").Value = pedidoUnico.order.customer.phone_prefix + pedidoUnico.order.customer.phone;
                             Ruta.Cell($"H{icelda}").Value = 1;
-                            Ruta.Cell($"I{icelda}").Value = "14:00";
-                            Ruta.Cell($"J{icelda}").Value = "22:00";
-                            Ruta.Cell($"M{icelda}").Value = pedidoUnico.order.shipping_address.complement;
+                            Ruta.Cell($"I{icelda}").Value = "00:00";
+                            Ruta.Cell($"J{icelda}").Value = "23:59";
                             Ruta.Cell($"K{icelda}").Value = pedidoUnico.order.customer.email;
                             Ruta.Cell($"M{icelda}").Value = pedidoUnico.order.customer.fullname;
                             Ruta.Cell($"AU{icelda}").Value = pedidoUnico.order.id;
                             Ruta.Cell($"G{icelda}").Value = pedidoUnico.order.id;
+                            
+                            icelda++;
                         }
-                        if (tono.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
-                        {
-                            Ruta.Cell($"N{icelda}").Value = tono[tono.Length - 1];
-                        }
-                        else if (ricardo.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
-                        {
-                            Ruta.Cell($"N{icelda}").Value = ricardo[ricardo.Length - 1];
-                        }
-                        else if (ana.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
-                        {
-                            Ruta.Cell($"N{icelda}").Value = ana[ana.Length - 1];
-                        }
-                        else if (javiera.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
-                        {
-                            Ruta.Cell($"N{icelda}").Value = javiera[javiera.Length - 1];
-                        }
-                        else if (christian.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
-                        {
-                            Ruta.Cell($"N{icelda}").Value = christian[christian.Length - 1];
-                        }
-                        else if (sebastian.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
-                        {
-                            Ruta.Cell($"N{icelda}").Value = sebastian[sebastian.Length - 1];
-                        }
-                        else if (victor.Contains(pedidoUnico.order.shipping_address.municipality.ToLower()))
-                        {
-                            Ruta.Cell($"N{icelda}").Value = victor[victor.Length - 1];
-                        }
-                        else if (idGalloNegro.Contains(pedidoUnico.order.shipping_method_id))
-                        {
-                            Ruta.Cell($"N{icelda}").Value = "Gallo Negro";
-                        }
-                        else if (pedidoUnico.order.shipping_method_id == 159663)
-                        {
-                            Ruta.Cell($"N{icelda}").Value = pedidoUnico.order.shipping_method_name;
-                        }
-                        icelda = icelda + 1;
                         listaJS.Add(pedidoUnico);
                     }
                 }
@@ -339,49 +376,64 @@ namespace AutomatizacionRutas
                                     VarianteProductoBsale variante = JsonConvert.DeserializeObject<VarianteProductoBsale>(await consultasHref(detalleFactura.items[p].variant.href));
                                     ProductoBsale productoBsale = JsonConvert.DeserializeObject<ProductoBsale>(await consultasHref(variante.product.href));
                                     productosFactura = detalleFactura.items[p].quantity + "x " + productoBsale.name + " " + variante.description + " x $";
-                                    InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boletaFactura.items[a].client.href));
+                                    if (boletaFactura.items[a].client == null)
+                                    {
+                                        Ruta.Cell($"L{icelda}").Value = "Sin información";
+                                        Ruta.Cell($"B{icelda}").Value = "Sin información";
+                                        Ruta.Cell($"M{icelda}").Value = "Sin información";
+                                        Ruta.Cell($"K{icelda}").Value = "Sin información";
+                                    } else
+                                    {
+                                        InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boletaFactura.items[a].client.href));
+                                        Ruta.Cell($"L{icelda}").Value = infoUsuario.phone;
+                                        Ruta.Cell($"B{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                        Ruta.Cell($"M{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                        Ruta.Cell($"K{icelda}").Value = infoUsuario.email;
+                                    }                                    
                                     Ruta.Cell($"AU{icelda}").Value = "F-" + boletaFactura.items[a].number;
                                     Ruta.Cell($"E{icelda}").Value = productosFactura + " x $" + boletaFactura.items[a].totalAmount;
-                                    Ruta.Cell($"C{icelda}").Value = boletaFactura.items[a].address + ", " + boletaFactura.items[a].municipality;
-                                    Ruta.Cell($"L{icelda}").Value = infoUsuario.phone;
-                                    Ruta.Cell($"B{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
-                                    Ruta.Cell($"M{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                    Ruta.Cell($"C{icelda}").Value = boletaFactura.items[a].address + ", " + boletaFactura.items[a].municipality;                                    
                                     Ruta.Cell($"H{icelda}").Value = "1";
-                                    Ruta.Cell($"I{icelda}").Value = "14:00";
-                                    Ruta.Cell($"J{icelda}").Value = "22:00";
-                                    Ruta.Cell($"K{icelda}").Value = infoUsuario.email;
+                                    Ruta.Cell($"I{icelda}").Value = "00:00";
+                                    Ruta.Cell($"J{icelda}").Value = "23:59";                                    
                                     Ruta.Cell($"G{icelda}").Value = "F-" + boletaFactura.items[a].number;
-                                    if (tono.Contains(boletaFactura.items[a].municipality.ToLower()))
+                                    if (boletaFactura.items[a].municipality == null)
                                     {
-                                        Ruta.Cell($"N{icelda}").Value = tono[tono.Length - 1];
-                                    }
-                                    else if (ricardo.Contains(boletaFactura.items[a].municipality.ToLower()))
+                                        Ruta.Cell($"N{icelda}").Value = "Sin informacion";
+                                    } else
                                     {
-                                        Ruta.Cell($"N{icelda}").Value = ricardo[ricardo.Length - 1];
+                                        if (tono.Contains(boletaFactura.items[a].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = tono[tono.Length - 1];
+                                        }
+                                        else if (ricardo.Contains(boletaFactura.items[a].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = ricardo[ricardo.Length - 1];
+                                        }
+                                        else if (ana.Contains(boletaFactura.items[a].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = ana[ana.Length - 1];
+                                        }
+                                        else if (javiera.Contains(boletaFactura.items[a].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = javiera[javiera.Length - 1];
+                                        }
+                                        else if (christian.Contains(boletaFactura.items[a].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = christian[christian.Length - 1];
+                                        }
+                                        else if (sebastian.Contains(boletaFactura.items[a].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = sebastian[sebastian.Length - 1];
+                                        }
+                                        else if (victor.Contains(boletaFactura.items[a].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = victor[victor.Length - 1];
+                                        }
+                                           
                                     }
-                                    else if (ana.Contains(boletaFactura.items[a].municipality.ToLower()))
-                                    {
-                                        Ruta.Cell($"N{icelda}").Value = ana[ana.Length - 1];
-                                    }
-                                    else if (javiera.Contains(boletaFactura.items[a].municipality.ToLower()))
-                                    {
-                                        Ruta.Cell($"N{icelda}").Value = javiera[javiera.Length - 1];
-                                    }
-                                    else if (christian.Contains(boletaFactura.items[a].municipality.ToLower()))
-                                    {
-                                        Ruta.Cell($"N{icelda}").Value = christian[christian.Length - 1];
-                                    }
-                                    else if (sebastian.Contains(boletaFactura.items[a].municipality.ToLower()))
-                                    {
-                                        Ruta.Cell($"N{icelda}").Value = sebastian[sebastian.Length - 1];
-                                    }
-                                    else if (victor.Contains(boletaFactura.items[a].municipality.ToLower()))
-                                    {
-                                        Ruta.Cell($"N{icelda}").Value = victor[victor.Length - 1];
-                                    }
+                                    icelda++;
                                 }
-
-                                icelda = icelda + 1;
                             }
                             else
                             {
@@ -404,53 +456,67 @@ namespace AutomatizacionRutas
 
                                 for (int p = 0; p < detalleBoleta.items.Length; p++)
                                 {
-
                                     VarianteProductoBsale variante = JsonConvert.DeserializeObject<VarianteProductoBsale>(await consultasHref(detalleBoleta.items[p].variant.href));
                                     ProductoBsale productoBsale = JsonConvert.DeserializeObject<ProductoBsale>(await consultasHref(variante.product.href));
                                     productosManual = detalleBoleta.items[p].quantity + "x " + productoBsale.name + " " + variante.description + " x $";
-                                    InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boletaManual.items[a].client.href));
+                                    if (boletaManual.items[a].client == null)
+                                    {
+                                        Ruta.Cell($"L{icelda}").Value = "Sin información";
+                                        Ruta.Cell($"B{icelda}").Value = "Sin información";
+                                        Ruta.Cell($"M{icelda}").Value = "Sin información";
+                                        Ruta.Cell($"K{icelda}").Value = "Sin información";
+                                    }
+                                    else
+                                    {
+                                        InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boletaManual.items[a].client.href));
+                                        Ruta.Cell($"L{icelda}").Value = infoUsuario.phone;
+                                        Ruta.Cell($"B{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                        Ruta.Cell($"M{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                        Ruta.Cell($"K{icelda}").Value = infoUsuario.email;
+                                    }                                    
                                     Ruta.Cell($"AU{icelda}").Value = "BM-" + boletaManual.items[a].number;
                                     Ruta.Cell($"E{icelda}").Value = productosManual + " x $" + boletaManual.items[a].totalAmount;
                                     Ruta.Cell($"C{icelda}").Value = boletaManual.items[a].address + ", " + boletaManual.items[a].municipality;
-                                    Ruta.Cell($"L{icelda}").Value = infoUsuario.phone;
-                                    Ruta.Cell($"B{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
-                                    Ruta.Cell($"M{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
                                     Ruta.Cell($"H{icelda}").Value = "1";
-                                    Ruta.Cell($"I{icelda}").Value = "14:00";
-                                    Ruta.Cell($"J{icelda}").Value = "22:00";
-                                    Ruta.Cell($"K{icelda}").Value = infoUsuario.email;
+                                    Ruta.Cell($"I{icelda}").Value = "00:00";
+                                    Ruta.Cell($"J{icelda}").Value = "23:59";
                                     Ruta.Cell($"G{icelda}").Value = "BM-" + boletaManual.items[a].number;
-                                    if (tono.Contains(boletaManual.items[a].municipality.ToLower()))
+                                    if (boletaManual.items[a].municipality == null)
                                     {
-                                        Ruta.Cell($"N{icelda}").Value = tono[tono.Length - 1];
-                                    }
-                                    else if (ricardo.Contains(boletaManual.items[a].municipality.ToLower()))
+                                        Ruta.Cell($"N{icelda}").Value = "Sin informacion";
+                                    } else 
                                     {
-                                        Ruta.Cell($"N{icelda}").Value = ricardo[ricardo.Length - 1];
+                                        if (tono.Contains(boletaManual.items[a].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = tono[tono.Length - 1];
+                                        }
+                                        else if (ricardo.Contains(boletaManual.items[a].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = ricardo[ricardo.Length - 1];
+                                        }
+                                        else if (ana.Contains(boletaManual.items[a].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = ana[ana.Length - 1];
+                                        }
+                                        else if (javiera.Contains(boletaManual.items[a].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = javiera[javiera.Length - 1];
+                                        }
+                                        else if (christian.Contains(boletaManual.items[a].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = christian[christian.Length - 1];
+                                        }
+                                        else if (sebastian.Contains(boletaManual.items[a].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = sebastian[sebastian.Length - 1];
+                                        }
+                                        else if (victor.Contains(boletaManual.items[a].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = victor[victor.Length - 1];
+                                        }                                        
                                     }
-                                    else if (ana.Contains(boletaManual.items[a].municipality.ToLower()))
-                                    {
-                                        Ruta.Cell($"N{icelda}").Value = ana[ana.Length - 1];
-                                    }
-                                    else if (javiera.Contains(boletaManual.items[a].municipality.ToLower()))
-                                    {
-                                        Ruta.Cell($"N{icelda}").Value = javiera[javiera.Length - 1];
-                                    }
-                                    else if (christian.Contains(boletaManual.items[a].municipality.ToLower()))
-                                    {
-                                        Ruta.Cell($"N{icelda}").Value = christian[christian.Length - 1];
-                                    }
-                                    else if (sebastian.Contains(boletaManual.items[a].municipality.ToLower()))
-                                    {
-                                        Ruta.Cell($"N{icelda}").Value = sebastian[sebastian.Length - 1];
-                                    }
-                                    else if (victor.Contains(boletaManual.items[a].municipality.ToLower()))
-                                    {
-                                        Ruta.Cell($"N{icelda}").Value = victor[victor.Length - 1];
-                                    }
+                                    icelda++;
                                 }
-
-                                icelda = icelda + 1;
                             }
                             else
                             {
@@ -476,49 +542,63 @@ namespace AutomatizacionRutas
                                     VarianteProductoBsale variante = JsonConvert.DeserializeObject<VarianteProductoBsale>(await consultasHref(detalleBoleta.items[p].variant.href));
                                     ProductoBsale productoBsale = JsonConvert.DeserializeObject<ProductoBsale>(await consultasHref(variante.product.href));
                                     productosElectronica = detalleBoleta.items[p].quantity + "x " + productoBsale.name + " " + variante.description + " x $";
-                                    InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boleta.items[i].client.href));
+                                    if (boleta.items[i].client == null)
+                                    {
+                                        Ruta.Cell($"L{icelda}").Value = "Sin información";
+                                        Ruta.Cell($"B{icelda}").Value = "Sin información";
+                                        Ruta.Cell($"M{icelda}").Value = "Sin información";
+                                        Ruta.Cell($"K{icelda}").Value = "Sin información";
+                                    } else
+                                    {
+                                        InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHref(boleta.items[i].client.href));
+                                        Ruta.Cell($"L{icelda}").Value = infoUsuario.phone;
+                                        Ruta.Cell($"B{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                        Ruta.Cell($"M{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                        Ruta.Cell($"K{icelda}").Value = infoUsuario.email;
+                                    }                                    
                                     Ruta.Cell($"AU{icelda}").Value = "BE-" + boleta.items[i].number;
                                     Ruta.Cell($"E{icelda}").Value = productosElectronica + " x $" + boleta.items[i].totalAmount;
-                                    Ruta.Cell($"C{icelda}").Value = boleta.items[i].address + ", " + boleta.items[i].municipality;
-                                    Ruta.Cell($"L{icelda}").Value = infoUsuario.phone;
-                                    Ruta.Cell($"B{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
-                                    Ruta.Cell($"M{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                    Ruta.Cell($"C{icelda}").Value = boleta.items[i].address + ", " + boleta.items[i].municipality;                                    
                                     Ruta.Cell($"H{icelda}").Value = "1";
-                                    Ruta.Cell($"I{icelda}").Value = "14:00";
-                                    Ruta.Cell($"J{icelda}").Value = "22:00";
-                                    Ruta.Cell($"K{icelda}").Value = infoUsuario.email;
+                                    Ruta.Cell($"I{icelda}").Value = "00:00";
+                                    Ruta.Cell($"J{icelda}").Value = "23:59";
                                     Ruta.Cell($"G{icelda}").Value = "BE-" + boleta.items[i].number;
-                                    if (tono.Contains(boleta.items[i].municipality.ToLower()))
+                                    if (boleta.items[i].municipality == null)
                                     {
-                                        Ruta.Cell($"N{icelda}").Value = tono[tono.Length - 1];
-                                    }
-                                    else if (ricardo.Contains(boleta.items[i].municipality.ToLower()))
+                                        Ruta.Cell($"N{icelda}").Value = "Sin informacion";
+                                    } else
                                     {
-                                        Ruta.Cell($"N{icelda}").Value = ricardo[ricardo.Length - 1];
+                                        if (tono.Contains(boleta.items[i].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = tono[tono.Length - 1];
+                                        }
+                                        else if (ricardo.Contains(boleta.items[i].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = ricardo[ricardo.Length - 1];
+                                        }
+                                        else if (ana.Contains(boleta.items[i].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = ana[ana.Length - 1];
+                                        }
+                                        else if (javiera.Contains(boleta.items[i].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = javiera[javiera.Length - 1];
+                                        }
+                                        else if (christian.Contains(boleta.items[i].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = christian[christian.Length - 1];
+                                        }
+                                        else if (sebastian.Contains(boleta.items[i].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = sebastian[sebastian.Length - 1];
+                                        }
+                                        else if (victor.Contains(boleta.items[i].municipality.ToLower()))
+                                        {
+                                            Ruta.Cell($"N{icelda}").Value = victor[victor.Length - 1];
+                                        }                                        
                                     }
-                                    else if (ana.Contains(boleta.items[i].municipality.ToLower()))
-                                    {
-                                        Ruta.Cell($"N{icelda}").Value = ana[ana.Length - 1];
-                                    }
-                                    else if (javiera.Contains(boleta.items[i].municipality.ToLower()))
-                                    {
-                                        Ruta.Cell($"N{icelda}").Value = javiera[javiera.Length - 1];
-                                    }
-                                    else if (christian.Contains(boleta.items[i].municipality.ToLower()))
-                                    {
-                                        Ruta.Cell($"N{icelda}").Value = christian[christian.Length - 1];
-                                    }
-                                    else if (sebastian.Contains(boleta.items[i].municipality.ToLower()))
-                                    {
-                                        Ruta.Cell($"N{icelda}").Value = sebastian[sebastian.Length - 1];
-                                    }
-                                    else if (victor.Contains(boleta.items[i].municipality.ToLower()))
-                                    {
-                                        Ruta.Cell($"N{icelda}").Value = victor[victor.Length - 1];
-                                    }
+                                    icelda++;
                                 }
-
-                                icelda = icelda + 1;
                             }
                             else
                             {
@@ -610,7 +690,11 @@ namespace AutomatizacionRutas
             icelda = 2;
             var workBook = new XLWorkbook($"{rutaGuardado}\\Archivo Ruta {today.ToString("dd/MM/yyyy")}.xlsx");
             var Rutas = workBook.Worksheet("Ruta");
+            var reRoutix = workBook.AddWorksheet("Resagados ROUTIX");
+            var reBBDDFinal = workBook.AddWorksheet("Resagados BBDD Final");
             var BBDDFinal = workBook.AddWorksheet("BBDD Final");
+
+            //Formato para BBDD final
             BBDDFinal.Cell("A1").Value = "CONTADOR";
             BBDDFinal.Cell("A1").Style.Fill.SetBackgroundColor(XLColor.Orange);
             BBDDFinal.Cell("B1").Value = "Cliente";
@@ -637,15 +721,15 @@ namespace AutomatizacionRutas
             BBDDFinal.Cell("L1").Style.Fill.SetBackgroundColor(XLColor.Orange);
             BBDDFinal.Cell("M1").Value = "Notas";
             BBDDFinal.Cell("M1").Style.Fill.SetBackgroundColor(XLColor.Orange);
-            BBDDFinal.Cell("N1").Value = "Fecha venta";
+            BBDDFinal.Cell("N1").Value = "Stock";
             BBDDFinal.Cell("N1").Style.Fill.SetBackgroundColor(XLColor.Orange);
-            BBDDFinal.Cell("O1").Value = "Fecha envío";
+            BBDDFinal.Cell("O1").Value = "Estado";
             BBDDFinal.Cell("O1").Style.Fill.SetBackgroundColor(XLColor.Orange);
-            BBDDFinal.Cell("P1").Value = "Forma de envío";
+            BBDDFinal.Cell("P1").Value = "Fecha venta";
             BBDDFinal.Cell("P1").Style.Fill.SetBackgroundColor(XLColor.Orange);
-            BBDDFinal.Cell("Q1").Value = "Repatidor";
+            BBDDFinal.Cell("Q1").Value = "Forma de envío";
             BBDDFinal.Cell("Q1").Style.Fill.SetBackgroundColor(XLColor.Orange);
-            BBDDFinal.Cell("R1").Value = "Estado";
+            BBDDFinal.Cell("R1").Value = "Repatidor";
             BBDDFinal.Cell("R1").Style.Fill.SetBackgroundColor(XLColor.Orange);
             BBDDFinal.Cell("S1").Value = "Vendedor";
             BBDDFinal.Cell("S1").Style.Fill.SetBackgroundColor(XLColor.Orange);
@@ -655,6 +739,85 @@ namespace AutomatizacionRutas
             BBDDFinal.Cell("U1").Style.Fill.SetBackgroundColor(XLColor.Orange);
             BBDDFinal.Cell("V1").Value = "Documento con indice";
             BBDDFinal.Cell("V1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+
+
+            //Formato para BBDD Final resagados
+            reBBDDFinal.Cell("A1").Value = "CONTADOR";
+            reBBDDFinal.Cell("A1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("B1").Value = "Cliente";
+            reBBDDFinal.Cell("B1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("C1").Value = "Nombre Mascota";
+            reBBDDFinal.Cell("C1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("D1").Value = "Direccion";
+            reBBDDFinal.Cell("D1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("E1").Value = "Comuna";
+            reBBDDFinal.Cell("E1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("F1").Value = "Telefono";
+            reBBDDFinal.Cell("F1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("G1").Value = "Correo";
+            reBBDDFinal.Cell("G1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("H1").Value = "Producto";
+            reBBDDFinal.Cell("H1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("I1").Value = "Peso";
+            reBBDDFinal.Cell("I1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("J1").Value = "Cantidad";
+            reBBDDFinal.Cell("J1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("K1").Value = "Total";
+            reBBDDFinal.Cell("K1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("L1").Value = "Medio de pago";
+            reBBDDFinal.Cell("L1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("M1").Value = "Notas";
+            reBBDDFinal.Cell("M1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("N1").Value = "Stock";
+            reBBDDFinal.Cell("N1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("O1").Value = "Estado";
+            reBBDDFinal.Cell("O1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("P1").Value = "Fecha venta";
+            reBBDDFinal.Cell("P1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("Q1").Value = "Forma de envío";
+            reBBDDFinal.Cell("Q1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("R1").Value = "Repatidor";
+            reBBDDFinal.Cell("R1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("S1").Value = "Vendedor";
+            reBBDDFinal.Cell("S1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("T1").Value = "Sucursal";
+            reBBDDFinal.Cell("T1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("U1").Value = "Documento";
+            reBBDDFinal.Cell("U1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reBBDDFinal.Cell("V1").Value = "Documento con indice";
+            reBBDDFinal.Cell("V1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+
+
+            // Formato ruta resagados
+            reRoutix.Cell("A1").Value = "CODIGO CLIENTE";
+            reRoutix.Cell("A1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reRoutix.Cell("B1").Value = "CLIENTE";
+            reRoutix.Cell("B1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reRoutix.Cell("C1").Value = "DOMICILIO";
+            reRoutix.Cell("C1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reRoutix.Cell("D1").Value = "NOTAS DOMICILIO";
+            reRoutix.Cell("D1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reRoutix.Cell("E1").Value = "ARTICULO";
+            reRoutix.Cell("E1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reRoutix.Cell("F1").Value = "OBSERVACION";
+            reRoutix.Cell("F1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reRoutix.Cell("G1").Value = "FACTURA";
+            reRoutix.Cell("G1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reRoutix.Cell("H1").Value = "CARGA PRIMARIA";
+            reRoutix.Cell("H1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reRoutix.Cell("I1").Value = "HORA DESDE";
+            reRoutix.Cell("I1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reRoutix.Cell("J1").Value = "HORA HASTA";
+            reRoutix.Cell("J1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reRoutix.Cell("K1").Value = "EMAIL COMPRADOR";
+            reRoutix.Cell("K1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reRoutix.Cell("L1").Value = "TELEFONO CONTACTO";
+            reRoutix.Cell("L1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reRoutix.Cell("N1").Value = "GRUPO";
+            reRoutix.Cell("N1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+            reRoutix.Cell("M1").Value = "NOMBRE CONTACTO";
+            reRoutix.Cell("M1").Style.Fill.SetBackgroundColor(XLColor.Orange);
+
 
 
 
@@ -667,10 +830,10 @@ namespace AutomatizacionRutas
                 string pedidos = pedido.order.id.ToString();
                 string Rebotado = await ConsultaPedidoUnico(pedidos);
                 Class1 pedidoUnico = JsonConvert.DeserializeObject<Class1>(Rebotado);
-                if (pedidoUnico.order.total < 20000 && pedidoUnico.order.shipping_method_id != 159655 && pedidoUnico.order.shipping_method_id != null)
+                //Calcula el precio de los envios que mantienen condiciones en las cuales se cobra
+                if (pedidoUnico.order.shipping != 0)
                 {
-                    totalEnvios = totalEnvios + costoEnvio;
-                    BBDDFinal.Cell($"U{icelda}").Style.Fill.SetBackgroundColor(XLColor.Yellow);
+                    totalEnvios = totalEnvios + (int)pedidoUnico.order.shipping;
                 }
                 for (int p = 0; p < pedidoUnico.order.products.Length; p++)
                 {
@@ -748,12 +911,12 @@ namespace AutomatizacionRutas
                     if (pedidoUnico.order.shipping_address != null)
                     {
                         BBDDFinal.Cell($"E{icelda}").Value = pedidoUnico.order.shipping_address.municipality;
-                        BBDDFinal.Cell($"P{icelda}").Value = pedidoUnico.order.shipping_method_name;
+                        BBDDFinal.Cell($"Q{icelda}").Value = pedidoUnico.order.shipping_method_name;
                     }
                     else
                     {
                         BBDDFinal.Cell($"E{icelda}").Value = "-";
-                        BBDDFinal.Cell($"P{icelda}").Value = "No aplica";
+                        BBDDFinal.Cell($"Q{icelda}").Value = "No aplica";
                     }
 
                     BBDDFinal.Cell($"F{icelda}").Value = pedidoUnico.order.customer.phone_prefix + pedidoUnico.order.customer.phone;
@@ -767,8 +930,7 @@ namespace AutomatizacionRutas
                     {
                         BBDDFinal.Cell($"M{icelda}").Value = pedidoUnico.order.additional_information.ToString();
                     }
-                    BBDDFinal.Cell($"N{icelda}").Value = pedidoUnico.order.completed_at;
-                    BBDDFinal.Cell($"O{icelda}").Value = today.ToString("dd/MM/yyyy");
+                    BBDDFinal.Cell($"P{icelda}").Value = pedidoUnico.order.completed_at;
                     BBDDFinal.Cell($"S{icelda}").Value = "Casa Matriz";
                     BBDDFinal.Cell($"T{icelda}").Value = "Santiago";
                     BBDDFinal.Cell($"U{icelda}").Value = pedidoUnico.order.id;
@@ -792,7 +954,38 @@ namespace AutomatizacionRutas
                     {
                         if (boletaFactura.items[a].document_type.id == "6")
                         {
-                            InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHrefexpand(boletaFactura.items[a].client.href, "?expand=[attributes]"));
+                            if (boletaFactura.items[a].client == null)
+                            {
+                                BBDDFinal.Cell($"B{icelda}").Value = "Sin informacion";
+                                BBDDFinal.Cell($"F{icelda}").Value = "Sin informacion";
+                                BBDDFinal.Cell($"G{icelda}").Value = "Sin informacion";
+                                BBDDFinal.Cell($"C{icelda}").Value = "-";
+                                BBDDFinal.Cell($"M{icelda}").Value = "-";
+                            } else
+                            {
+                                InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHrefexpand(boletaFactura.items[a].client.href, "?expand=[attributes]"));
+                                BBDDFinal.Cell($"B{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                if (infoUsuario.attributes.items[0].value != string.Empty)
+                                {
+                                    BBDDFinal.Cell($"C{icelda}").Value = infoUsuario.attributes.items[0].value;
+                                }
+                                else
+                                {
+                                    BBDDFinal.Cell($"C{icelda}").Value = "-";
+                                }
+                                BBDDFinal.Cell($"F{icelda}").Value = infoUsuario.phone;
+                                BBDDFinal.Cell($"G{icelda}").Value = infoUsuario.email;
+                                BBDDFinal.Cell($"L{icelda}").Value = "-";
+                                if (infoUsuario.note == null)
+                                {
+                                    BBDDFinal.Cell($"M{icelda}").Value = "-";
+                                }
+                                else
+                                {
+                                    BBDDFinal.Cell($"M{icelda}").Value = infoUsuario.note.ToString();
+                                }
+                            }
+                            
                             DetalleBoletasBsale detalleFactura = JsonConvert.DeserializeObject<DetalleBoletasBsale>(await consultasHref(boletaFactura.items[a].details.href));
                             Vendedor vendedor = JsonConvert.DeserializeObject<Vendedor>(await consultasHref(boletaFactura.items[a].user.href));
                             for (int p = 0; p < detalleFactura.items.Length; p++)
@@ -809,39 +1002,18 @@ namespace AutomatizacionRutas
                                     formatoProducto = formatoProducto.Trim();
                                     BBDDFinal.Cell($"I{icelda}").Value = formatoProducto;
                                     BBDDFinal.Cell($"J{icelda}").Value = detalleFactura.items[p].quantity;
-                                    BBDDFinal.Cell($"K{icelda}").Value = detalleFactura.items[p].totalAmount;
-                                    BBDDFinal.Cell($"B{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
-                                    if (infoUsuario.attributes.items[0].value != string.Empty)
-                                    {
-                                        BBDDFinal.Cell($"C{icelda}").Value = infoUsuario.attributes.items[0].value;
-                                    }
-                                    else
-                                    {
-                                        BBDDFinal.Cell($"C{icelda}").Value = "-";
-                                    }
+                                    BBDDFinal.Cell($"K{icelda}").Value = detalleFactura.items[p].totalAmount;      
                                     BBDDFinal.Cell($"D{icelda}").Value = boletaFactura.items[a].address;
                                     BBDDFinal.Cell($"E{icelda}").Value = boletaFactura.items[a].municipality;
-                                    BBDDFinal.Cell($"F{icelda}").Value = infoUsuario.phone;
-                                    BBDDFinal.Cell($"G{icelda}").Value = infoUsuario.email;
-                                    BBDDFinal.Cell($"L{icelda}").Value = "-";
-                                    if (infoUsuario.note == null)
-                                    {
-                                        BBDDFinal.Cell($"M{icelda}").Value = "-";
-                                    }
-                                    else
-                                    {
-                                        BBDDFinal.Cell($"M{icelda}").Value = infoUsuario.note.ToString();
-                                    }
                                     long fechaEmision = boletaFactura.items[a].emissionDate;
                                     DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(fechaEmision);
-                                    BBDDFinal.Cell($"N{icelda}").Value = dateTimeOffset.ToString("dd/MM/yyyy");
+                                    BBDDFinal.Cell($"P{icelda}").Value = dateTimeOffset.ToString("dd/MM/yyyy");
                                     if (boletaFactura.items[a].address == "Av. Gabriela Oriente 2174")
                                     {
                                         BBDDFinal.Cell($"Q{icelda}").Value = "Retiro Local";
                                     }
                                     BBDDFinal.Cell($"S{icelda}").Value = vendedor.firstName + vendedor.lastName;
                                     BBDDFinal.Cell($"T{icelda}").Value = "Santiago";
-                                    BBDDFinal.Cell($"O{icelda}").Value = today.ToString("dd/MM/yyyy");
                                     BBDDFinal.Cell($"U{icelda}").Value = "F-" + boletaFactura.items[a].number;
                                     BBDDFinal.Cell($"V{icelda}").Value = "F-" + boletaFactura.items[a].number;
                                     BBDDFinal.Cell($"A{icelda}").Value = contadorPedido;
@@ -873,7 +1045,37 @@ namespace AutomatizacionRutas
                     {
                         if (boletaManual.items[a].document_type.id == "10")
                         {
-                            InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHrefexpand(boletaManual.items[a].client.href, "?expand=[attributes]"));
+                            if (boletaManual.items[a].client == null)
+                            {
+                                BBDDFinal.Cell($"B{icelda}").Value = "Sin informacion";
+                                BBDDFinal.Cell($"F{icelda}").Value = "Sin informacion";
+                                BBDDFinal.Cell($"G{icelda}").Value = "Sin informacion";
+                                BBDDFinal.Cell($"C{icelda}").Value = "-";
+                                BBDDFinal.Cell($"M{icelda}").Value = "-";
+                            } else
+                            {
+                                InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHrefexpand(boletaManual.items[a].client.href, "?expand=[attributes]"));
+                                BBDDFinal.Cell($"B{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                if (infoUsuario.attributes.items[0].value != string.Empty)
+                                {
+                                    BBDDFinal.Cell($"C{icelda}").Value = infoUsuario.attributes.items[0].value;
+                                }
+                                else
+                                {
+                                    BBDDFinal.Cell($"C{icelda}").Value = "-";
+                                }
+                                BBDDFinal.Cell($"F{icelda}").Value = infoUsuario.phone;
+                                BBDDFinal.Cell($"G{icelda}").Value = infoUsuario.email;
+                                BBDDFinal.Cell($"L{icelda}").Value = "-";
+                                if (infoUsuario.note == null)
+                                {
+                                    BBDDFinal.Cell($"M{icelda}").Value = "-";
+                                }
+                                else
+                                {
+                                    BBDDFinal.Cell($"M{icelda}").Value = infoUsuario.note.ToString();
+                                }
+                            }
                             DetalleBoletasBsale detalleBoletaManual = JsonConvert.DeserializeObject<DetalleBoletasBsale>(await consultasHref(boletaManual.items[a].details.href));
                             Vendedor vendedor = JsonConvert.DeserializeObject<Vendedor>(await consultasHref(boletaManual.items[a].user.href));
                             for (int p = 0; p < detalleBoletaManual.items.Length; p++)
@@ -890,38 +1092,18 @@ namespace AutomatizacionRutas
                                     BBDDFinal.Cell($"I{icelda}").Value = formatoProducto;
                                     BBDDFinal.Cell($"J{icelda}").Value = detalleBoletaManual.items[p].quantity;
                                     BBDDFinal.Cell($"K{icelda}").Value = detalleBoletaManual.items[p].totalAmount;
-                                    BBDDFinal.Cell($"B{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
-                                    if (infoUsuario.attributes.items[0].value != string.Empty)
-                                    {
-                                        BBDDFinal.Cell($"C{icelda}").Value = infoUsuario.attributes.items[0].value;
-                                    }
-                                    else
-                                    {
-                                        BBDDFinal.Cell($"C{icelda}").Value = "-";
-                                    }
+                                    
                                     BBDDFinal.Cell($"D{icelda}").Value = boletaManual.items[a].address;
-                                    BBDDFinal.Cell($"E{icelda}").Value = boletaManual.items[a].municipality;
-                                    BBDDFinal.Cell($"F{icelda}").Value = infoUsuario.phone;
-                                    BBDDFinal.Cell($"G{icelda}").Value = infoUsuario.email;
-                                    BBDDFinal.Cell($"L{icelda}").Value = "-";
-                                    if (infoUsuario.note == null)
-                                    {
-                                        BBDDFinal.Cell($"M{icelda}").Value = "-";
-                                    }
-                                    else
-                                    {
-                                        BBDDFinal.Cell($"M{icelda}").Value = infoUsuario.note.ToString();
-                                    }
+                                    BBDDFinal.Cell($"E{icelda}").Value = boletaManual.items[a].municipality;                                    
                                     long fechaEmision = boletaManual.items[a].emissionDate;
                                     DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(fechaEmision);
-                                    BBDDFinal.Cell($"N{icelda}").Value = dateTimeOffset.ToString("dd/MM/yyyy");
+                                    BBDDFinal.Cell($"P{icelda}").Value = dateTimeOffset.ToString("dd/MM/yyyy");
                                     if (boletaManual.items[a].address == "Av. Gabriela Oriente 2174")
                                     {
                                         BBDDFinal.Cell($"Q{icelda}").Value = "Retiro Local";
                                     }
                                     BBDDFinal.Cell($"S{icelda}").Value = vendedor.firstName + vendedor.lastName;
                                     BBDDFinal.Cell($"T{icelda}").Value = "Santiago";
-                                    BBDDFinal.Cell($"O{icelda}").Value = today.ToString("dd/MM/yyyy");
                                     BBDDFinal.Cell($"U{icelda}").Value = "BM-" + boletaManual.items[a].number;
                                     BBDDFinal.Cell($"V{icelda}").Value = "BM-" + boletaManual.items[a].number;
                                     BBDDFinal.Cell($"A{icelda}").Value = contadorPedido;
@@ -932,7 +1114,6 @@ namespace AutomatizacionRutas
                                     totalEnvios = totalEnvios + costoEnvio;
                                 }
                             }
-
                         }
                         else
                         {
@@ -952,7 +1133,37 @@ namespace AutomatizacionRutas
                     {
                         if (boletaElectronica.items[a].document_type.id == "1")
                         {
-                            InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHrefexpand(boletaElectronica.items[a].client.href, "?expand=[attributes]"));
+                            if (boletaElectronica.items[a].client == null)
+                            {
+                                BBDDFinal.Cell($"B{icelda}").Value = "Sin informacion";
+                                BBDDFinal.Cell($"F{icelda}").Value = "Sin informacion";
+                                BBDDFinal.Cell($"G{icelda}").Value = "Sin informacion";
+                                BBDDFinal.Cell($"C{icelda}").Value = "-";
+                                BBDDFinal.Cell($"M{icelda}").Value = "-";
+                            } else
+                            {
+                                InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHrefexpand(boletaElectronica.items[a].client.href, "?expand=[attributes]"));
+                                BBDDFinal.Cell($"B{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
+                                if (infoUsuario.attributes.items[0].value != string.Empty)
+                                {
+                                    BBDDFinal.Cell($"C{icelda}").Value = infoUsuario.attributes.items[0].value;
+                                }
+                                else
+                                {
+                                    BBDDFinal.Cell($"C{icelda}").Value = "-";
+                                }
+                                BBDDFinal.Cell($"F{icelda}").Value = infoUsuario.phone;
+                                BBDDFinal.Cell($"G{icelda}").Value = infoUsuario.email;
+                                BBDDFinal.Cell($"L{icelda}").Value = "-";
+                                if (infoUsuario.note == null)
+                                {
+                                    BBDDFinal.Cell($"M{icelda}").Value = "-";
+                                }
+                                else
+                                {
+                                    BBDDFinal.Cell($"M{icelda}").Value = infoUsuario.note.ToString();
+                                }
+                            }                            
                             DetalleBoletasBsale detalleBoletaElectronica = JsonConvert.DeserializeObject<DetalleBoletasBsale>(await consultasHref(boletaElectronica.items[a].details.href));
                             Vendedor vendedor = JsonConvert.DeserializeObject<Vendedor>(await consultasHref(boletaElectronica.items[a].user.href));
                             for (int p = 0; p < detalleBoletaElectronica.items.Length; p++)
@@ -967,39 +1178,18 @@ namespace AutomatizacionRutas
                                     formatoProducto = formatoProducto.Trim();
                                     BBDDFinal.Cell($"I{icelda}").Value = formatoProducto;
                                     BBDDFinal.Cell($"J{icelda}").Value = detalleBoletaElectronica.items[p].quantity;
-                                    BBDDFinal.Cell($"K{icelda}").Value = detalleBoletaElectronica.items[p].totalAmount;
-                                    BBDDFinal.Cell($"B{icelda}").Value = infoUsuario.firstName + " " + infoUsuario.lastName;
-                                    if (infoUsuario.attributes.items[0].value != string.Empty)
-                                    {
-                                        BBDDFinal.Cell($"C{icelda}").Value = infoUsuario.attributes.items[0].value;
-                                    }
-                                    else
-                                    {
-                                        BBDDFinal.Cell($"C{icelda}").Value = "-";
-                                    }
+                                    BBDDFinal.Cell($"K{icelda}").Value = detalleBoletaElectronica.items[p].totalAmount;                                   
                                     BBDDFinal.Cell($"D{icelda}").Value = boletaElectronica.items[a].address;
-                                    BBDDFinal.Cell($"E{icelda}").Value = boletaElectronica.items[a].municipality;
-                                    BBDDFinal.Cell($"F{icelda}").Value = infoUsuario.phone;
-                                    BBDDFinal.Cell($"G{icelda}").Value = infoUsuario.email;
-                                    BBDDFinal.Cell($"L{icelda}").Value = "-";
-                                    if (infoUsuario.note == null)
-                                    {
-                                        BBDDFinal.Cell($"M{icelda}").Value = "-";
-                                    }
-                                    else
-                                    {
-                                        BBDDFinal.Cell($"M{icelda}").Value = infoUsuario.note.ToString();
-                                    }
+                                    BBDDFinal.Cell($"E{icelda}").Value = boletaElectronica.items[a].municipality;                                    
                                     long fechaEmision = boletaElectronica.items[a].emissionDate;
                                     DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(fechaEmision);
-                                    BBDDFinal.Cell($"N{icelda}").Value = dateTimeOffset.ToString("dd/MM/yyyy");
+                                    BBDDFinal.Cell($"P{icelda}").Value = dateTimeOffset.ToString("dd/MM/yyyy");
                                     if (boletaElectronica.items[a].address == "Av. Gabriela Oriente 2174")
                                     {
                                         BBDDFinal.Cell($"Q{icelda}").Value = "Retiro Local";
                                     }
                                     BBDDFinal.Cell($"S{icelda}").Value = vendedor.firstName + vendedor.lastName;
                                     BBDDFinal.Cell($"T{icelda}").Value = "Santiago";
-                                    BBDDFinal.Cell($"O{icelda}").Value = today.ToString("dd/MM/yyyy");
                                     BBDDFinal.Cell($"U{icelda}").Value = "BE-" + boletaElectronica.items[a].number;
                                     BBDDFinal.Cell($"V{icelda}").Value = "BE-" + boletaElectronica.items[a].number;
                                     BBDDFinal.Cell($"A{icelda}").Value = contadorPedido;
@@ -1036,12 +1226,12 @@ namespace AutomatizacionRutas
                     if (IndiceBBDDFinal == IndiceRutas)
                     {
                         string Repartidor = Rutas.Cell($"N{indicePedido}").GetValue<string>();
-                        BBDDFinal.Cell($"Q{indiceBusqueda}").Value = Repartidor;
+                        BBDDFinal.Cell($"R{indiceBusqueda}").Value = Repartidor;
                         break;
                     }
                     else if (formaDeEnvio.Contains("Retiro"))
                     {
-                        BBDDFinal.Cell($"Q{indiceBusqueda}").Value = "Retiro Local";
+                        BBDDFinal.Cell($"R{indiceBusqueda}").Value = "Retiro Local";
                         break;
                     }
                     else if (metodoDePago.Contains("Mercado"))
@@ -1049,7 +1239,7 @@ namespace AutomatizacionRutas
                         comunaDeEnvio = comunaDeEnvio.ToLower();
                         if (!comunasRM.Contains(comunaDeEnvio))
                         {
-                            BBDDFinal.Cell($"Q{indiceBusqueda}").Value = "Mercado Libre";
+                            BBDDFinal.Cell($"R{indiceBusqueda}").Value = "Mercado Libre";
                             break;
                         }
                         break;
@@ -1090,7 +1280,7 @@ namespace AutomatizacionRutas
             var BBDDFinal = workBook.Worksheet("BBDD Final");
             var NombresMascotas = workBook.AddWorksheet("Nombres de mascotas");
             var pedido = BBDDFinal.Cell($"U{indiceBusqueda}").GetValue<string>();
-            var Repartidor = BBDDFinal.Cell($"Q{indiceBusqueda}").GetValue<string>();
+            var Repartidor = BBDDFinal.Cell($"R{indiceBusqueda}").GetValue<string>();
             var Mascota = BBDDFinal.Cell($"C{indiceBusqueda}").GetValue<string>();
             var Direccion = BBDDFinal.Cell($"D{indiceBusqueda}").GetValue<string>() + ", " + BBDDFinal.Cell($"D{indiceBusqueda}").GetValue<string>();
             NombresMascotas.Cell("A1").Value = "Dirección";
@@ -1109,7 +1299,7 @@ namespace AutomatizacionRutas
                     icelda++;
                     indiceBusqueda++;
                     pedido = BBDDFinal.Cell($"U{indiceBusqueda}").GetValue<string>();
-                    Repartidor = BBDDFinal.Cell($"Q{indiceBusqueda}").GetValue<string>();
+                    Repartidor = BBDDFinal.Cell($"R{indiceBusqueda}").GetValue<string>();
                     Mascota = BBDDFinal.Cell($"C{indiceBusqueda}").GetValue<string>();
                     Direccion = BBDDFinal.Cell($"D{indiceBusqueda}").GetValue<string>() + ", " + BBDDFinal.Cell($"D{indiceBusqueda}").GetValue<string>();
                 }
@@ -1117,7 +1307,7 @@ namespace AutomatizacionRutas
                 {
                     indiceBusqueda++;
                     pedido = BBDDFinal.Cell($"U{indiceBusqueda}").GetValue<string>();
-                    Repartidor = BBDDFinal.Cell($"Q{indiceBusqueda}").GetValue<string>();
+                    Repartidor = BBDDFinal.Cell($"R{indiceBusqueda}").GetValue<string>();
                     Mascota = BBDDFinal.Cell($"C{indiceBusqueda}").GetValue<string>();
                     Direccion = BBDDFinal.Cell($"D{indiceBusqueda}").GetValue<string>() + ", " + BBDDFinal.Cell($"D{indiceBusqueda}").GetValue<string>();
                 }
@@ -1136,6 +1326,532 @@ namespace AutomatizacionRutas
         private void pictureBox4_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            var workBook = new XLWorkbook($"{rutaGuardado}\\Archivo Ruta {today.ToString("dd/MM/yyyy")}.xlsx");
+            var BBDDFinal = workBook.Worksheet("BBDD Final");
+            workBook.SaveAs($"{rutaGuardado}\\Archivo Ruta {today.ToString("dd/MM/yyyy")}.xlsx");
+
+
+
+            //string idPedido = textBox_id_pedido.Text;
+            //string comentario = textBox_notas.Text;
+            //string url = $"https://api.jumpseller.com/v1/orders/{idPedido}.json?login=6e0af5429c314830f7307a63298f2249&authtoken=59d8fd6f0f60dd72307e38b09078f594";
+            //ConsultaOrden ObjetoPost = new ConsultaOrden()
+            //{
+            //    order = new Order
+            //    {
+            //    }
+            //};
+            //ObjetoPost.order.additional_information = comentario;
+            //var content = new StringContent(JsonConvert.SerializeObject(ObjetoPost), Encoding.UTF8, "application/json");
+            //var cliente = new HttpClient();
+            //var respuesta = await cliente.PutAsync(url, content);
+
+        }
+
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private async void button7_Click(object sender, EventArgs e)
+        {
+            Clear();
+            MultiProducto.Clear();
+            MultiproductoBsale.Clear();
+            indiceMultiProducto = 0;
+            string productosUnicos = string.Empty;
+            string id = txt_pedido_resagado.Text;
+            if (cmb_tipo_documento.Text == "Jumpseller")
+            {
+
+                string consultaOrdenes = $"https://api.jumpseller.com/v1/orders/{id}.json?login=6e0af5429c314830f7307a63298f2249&authtoken=59d8fd6f0f60dd72307e38b09078f594";
+                string respuesta = await GetHttp(consultaOrdenes);
+                SO singleorder = JsonConvert.DeserializeObject<SO>(respuesta);
+                MultiProducto.Add(singleorder);
+                if (singleorder.order.products.Length > 1)
+                {
+                    multiProducto = true;
+                    btn_producto_anterior.Enabled = multiProducto;
+                    btn_producto_siguiente.Enabled = multiProducto;
+                }
+                txt_nombre_re.Text = singleorder.order.customer.fullname;
+                txt_nombre_mascota_re.Text = singleorder.order.additional_fields[0].value;
+                if (singleorder.order.shipping_address == null)
+                {
+                    txt_direccion_re.Text = "-";
+                    txt_comuna_re.Text = "-";
+                } else
+                {
+                    txt_direccion_re.Text = singleorder.order.shipping_address.address;
+                    txt_comuna_re.Text = singleorder.order.shipping_address.municipality;
+                }
+                txt_telefono_re.Text = singleorder.order.customer.phone;
+                txt_correo_re.Text = singleorder.order.customer.email;
+                txt_producto_re.Text = singleorder.order.products[indiceMultiProducto].name;
+                txt_peso_re.Text = singleorder.order.products[indiceMultiProducto].weight.ToString();
+                txt_cantidad_re.Text = singleorder.order.products[indiceMultiProducto].qty.ToString();
+                if (singleorder.order.additional_information != null)
+                {
+                    txt_notas_re.Text = singleorder.order.additional_information.ToString();
+                }
+                medioPagoRe = singleorder.order.payment_method_name;
+                if (singleorder.order.additional_information == null)
+                {
+                    txt_notas_re.Text = "-";
+                }
+                else
+                {
+                    txt_notas_re.Text = singleorder.order.additional_information.ToString();
+                }
+                txt_forma_envio_re.Text = singleorder.order.shipping_method_name;
+                totalmultiproducto = ((int)singleorder.order.products[indiceMultiProducto].qty * (int)singleorder.order.products[indiceMultiProducto].price) - (int)singleorder.order.products[indiceMultiProducto].discount;
+                txt_total_re.Text = totalmultiproducto.ToString();
+            }
+            else if (cmb_tipo_documento.Text == "BM")
+            {
+                BoletaBsale boletaManual = JsonConvert.DeserializeObject<BoletaBsale>(await consultaBoleta(id));
+                for (int a = 0; a < boletaManual.items.Length; a++)
+                {
+                    if (boletaManual.items[a].document_type.id == "10")
+                    {
+                        if (boletaManual.items[a].client == null)
+                        {
+                            txt_nombre_mascota_re.Text = "-";
+                            txt_nombre_re.Text = "-";
+                            txt_telefono_re.Text = "-";
+                            txt_correo_re.Text = "-";
+                            txt_notas_re.Text = "-";
+                        } else
+                        {
+                            InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHrefexpand(boletaManual.items[a].client.href, "?expand=[attributes]"));
+                            if (infoUsuario.attributes.items[0].value != string.Empty)
+                            {
+                                txt_nombre_mascota_re.Text = infoUsuario.attributes.items[0].value;
+                            }
+                            else
+                            {
+                                txt_nombre_mascota_re.Text = "-";
+                            }
+                            txt_nombre_re.Text = infoUsuario.firstName + " " + infoUsuario.lastName;
+                            txt_telefono_re.Text = infoUsuario.phone;
+                            txt_correo_re.Text = infoUsuario.email;
+                            if (infoUsuario.note == null)
+                            {
+                                txt_notas_re.Text = "-";
+                            }
+                            else
+                            {
+                                txt_notas_re.Text = infoUsuario.note.ToString();
+                            }
+                        }
+                        
+                        DetalleBoletasBsale detalleBoletaManual = JsonConvert.DeserializeObject<DetalleBoletasBsale>(await consultasHref(boletaManual.items[a].details.href));
+                        Vendedor vendedor = JsonConvert.DeserializeObject<Vendedor>(await consultasHref(boletaManual.items[a].user.href));
+                        if (detalleBoletaManual.items.Length > 1)
+                        {
+                            multiProducto = true;
+                            btn_producto_anterior.Enabled = multiProducto;
+                            btn_producto_siguiente.Enabled = multiProducto;
+                        }
+                        for (int p = 0; p < detalleBoletaManual.items.Length; p++)
+                        {
+                            VarianteProductoBsale variante = JsonConvert.DeserializeObject<VarianteProductoBsale>(await consultasHref(detalleBoletaManual.items[p].variant.href));
+                            ProductoBsale productoBsale = JsonConvert.DeserializeObject<ProductoBsale>(await consultasHref(variante.product.href));
+                            if (productoBsale.id != 338)
+                            {
+
+                                string formatoProducto = variante.description.ToString();
+                                formatoProducto = formatoProducto.Replace(".", ",");
+                                formatoProducto = formatoProducto.Trim();
+                                MultiproductoBsale mbsaleLista = new MultiproductoBsale();
+                                mbsaleLista.nombre = productoBsale.name;
+                                mbsaleLista.peso = formatoProducto;
+                                mbsaleLista.cantidad = detalleBoletaManual.items[p].quantity.ToString();
+                                mbsaleLista.precio = detalleBoletaManual.items[p].totalAmount.ToString();
+                                MultiproductoBsale.Add(mbsaleLista);                               
+                                txt_producto_re.Text = MultiproductoBsale[0].nombre;
+                                txt_direccion_re.Text = boletaManual.items[a].address;
+                                txt_comuna_re.Text = boletaManual.items[a].municipality;                                
+                                txt_peso_re.Text = MultiproductoBsale[0].peso;
+                                txt_cantidad_re.Text = MultiproductoBsale[0].cantidad;
+                                txt_total_re.Text = MultiproductoBsale[0].precio;
+                                vendedorRe = vendedor.firstName + " " + vendedor.lastName;                                
+                                //long fechaEmision = boletaManual.items[a].emissionDate;
+                                //DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(fechaEmision);
+                                //BBDDFinal.Cell($"P{icelda}").Value = dateTimeOffset.ToString("dd/MM/yyyy");
+                                if (boletaManual.items[a].address == "Av. Gabriela Oriente 2174")
+                                {
+                                    txt_repartidor_re.Text = "Retiro Local";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else if (cmb_tipo_documento.Text == "BE")
+            {
+                BoletaBsale boletaManual = JsonConvert.DeserializeObject<BoletaBsale>(await consultaBoleta(id));
+                for (int a = 0; a < boletaManual.items.Length; a++)
+                {
+                    if (boletaManual.items[a].document_type.id == "1")
+                    {
+                        if (boletaManual.items[a].client == null)
+                        {
+                            txt_nombre_mascota_re.Text = "-";
+                            txt_nombre_re.Text = "-";
+                            txt_telefono_re.Text = "-";
+                            txt_correo_re.Text = "-";
+                            txt_notas_re.Text = "-";
+                        } else
+                        {
+                            InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHrefexpand(boletaManual.items[a].client.href, "?expand=[attributes]"));
+                            if (infoUsuario.attributes.items[0].value != string.Empty)
+                            {
+                                txt_nombre_mascota_re.Text = infoUsuario.attributes.items[0].value;
+                            }
+                            else
+                            {
+                                txt_nombre_mascota_re.Text = "-";
+                            }
+                            txt_nombre_re.Text = infoUsuario.firstName + " " + infoUsuario.lastName;
+                            txt_telefono_re.Text = infoUsuario.phone;
+                            txt_correo_re.Text = infoUsuario.email;
+                            if (infoUsuario.note == null)
+                            {
+                                txt_notas_re.Text = "-";
+                            }
+                            else
+                            {
+                                txt_notas_re.Text = infoUsuario.note.ToString();
+                            }
+                        }
+                        DetalleBoletasBsale detalleBoletaManual = JsonConvert.DeserializeObject<DetalleBoletasBsale>(await consultasHref(boletaManual.items[a].details.href));
+                        Vendedor vendedor = JsonConvert.DeserializeObject<Vendedor>(await consultasHref(boletaManual.items[a].user.href));
+                        if (detalleBoletaManual.items.Length > 1)
+                        {
+                            multiProducto = true;
+                            btn_producto_anterior.Enabled = multiProducto;
+                            btn_producto_siguiente.Enabled = multiProducto;
+                        }
+                        for (int p = 0; p < detalleBoletaManual.items.Length; p++)
+                        {
+                            VarianteProductoBsale variante = JsonConvert.DeserializeObject<VarianteProductoBsale>(await consultasHref(detalleBoletaManual.items[p].variant.href));
+                            ProductoBsale productoBsale = JsonConvert.DeserializeObject<ProductoBsale>(await consultasHref(variante.product.href));
+                            if (productoBsale.id != 338)
+                            {
+
+                                string formatoProducto = variante.description.ToString();
+                                formatoProducto = formatoProducto.Replace(".", ",");
+                                formatoProducto = formatoProducto.Trim();
+                                MultiproductoBsale mbsaleLista = new MultiproductoBsale();
+                                mbsaleLista.nombre = productoBsale.name;
+                                mbsaleLista.peso = formatoProducto;
+                                mbsaleLista.cantidad = detalleBoletaManual.items[p].quantity.ToString();
+                                mbsaleLista.precio = detalleBoletaManual.items[p].totalAmount.ToString();
+                                MultiproductoBsale.Add(mbsaleLista);
+                                txt_producto_re.Text = MultiproductoBsale[0].nombre;
+                                txt_direccion_re.Text = boletaManual.items[a].address;
+                                txt_comuna_re.Text = boletaManual.items[a].municipality;                                
+                                txt_peso_re.Text = MultiproductoBsale[0].peso;
+                                txt_cantidad_re.Text = MultiproductoBsale[0].cantidad;
+                                txt_total_re.Text = MultiproductoBsale[0].precio;
+                                vendedorRe = vendedor.firstName + " " + vendedor.lastName;                                
+                                //long fechaEmision = boletaManual.items[a].emissionDate;
+                                //DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(fechaEmision);
+                                //BBDDFinal.Cell($"P{icelda}").Value = dateTimeOffset.ToString("dd/MM/yyyy");
+                                if (boletaManual.items[a].address == "Av. Gabriela Oriente 2174")
+                                {
+                                    txt_repartidor_re.Text = "Retiro Local";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else if (cmb_tipo_documento.Text == "F")
+            {
+                BoletaBsale boletaManual = JsonConvert.DeserializeObject<BoletaBsale>(await consultaBoleta(id));
+                for (int a = 0; a < boletaManual.items.Length; a++)
+                {
+                    if (boletaManual.items[a].document_type.id == "6")
+                    {
+                        if (boletaManual.items[a].client == null)
+                        {
+                            txt_nombre_mascota_re.Text = "-";
+                            txt_nombre_re.Text = "-";
+                            txt_telefono_re.Text = "-";
+                            txt_correo_re.Text = "-";
+                            txt_notas_re.Text = "-";
+                        } else
+                        {
+                            InformacionUsuarios infoUsuario = JsonConvert.DeserializeObject<InformacionUsuarios>(await consultasHrefexpand(boletaManual.items[a].client.href, "?expand=[attributes]"));
+                            if (infoUsuario.attributes.items[0].value != string.Empty)
+                            {
+                                txt_nombre_mascota_re.Text = infoUsuario.attributes.items[0].value;
+                            }
+                            else
+                            {
+                                txt_nombre_mascota_re.Text = "-";
+                            }
+                            txt_nombre_re.Text = infoUsuario.firstName + " " + infoUsuario.lastName;
+                            txt_telefono_re.Text = infoUsuario.phone;
+                            txt_correo_re.Text = infoUsuario.email;
+                            if (infoUsuario.note == null)
+                            {
+                                txt_notas_re.Text = "-";
+                            }
+                            else
+                            {
+                                txt_notas_re.Text = infoUsuario.note.ToString();
+                            }
+                        }                        
+                        DetalleBoletasBsale detalleBoletaManual = JsonConvert.DeserializeObject<DetalleBoletasBsale>(await consultasHref(boletaManual.items[a].details.href));
+                        Vendedor vendedor = JsonConvert.DeserializeObject<Vendedor>(await consultasHref(boletaManual.items[a].user.href));
+                        if (detalleBoletaManual.items.Length > 1)
+                        {
+                            multiProducto = true;
+                            btn_producto_anterior.Enabled = multiProducto;
+                            btn_producto_siguiente.Enabled = multiProducto;
+                        }
+                        for (int p = 0; p < detalleBoletaManual.items.Length; p++)
+                        {
+                            VarianteProductoBsale variante = JsonConvert.DeserializeObject<VarianteProductoBsale>(await consultasHref(detalleBoletaManual.items[p].variant.href));
+                            ProductoBsale productoBsale = JsonConvert.DeserializeObject<ProductoBsale>(await consultasHref(variante.product.href));
+                            if (productoBsale.id != 338)
+                            {
+
+                                string formatoProducto = variante.description.ToString();
+                                formatoProducto = formatoProducto.Replace(".", ",");
+                                formatoProducto = formatoProducto.Trim();
+                                MultiproductoBsale mbsaleLista = new MultiproductoBsale();
+                                mbsaleLista.nombre = productoBsale.name;
+                                mbsaleLista.peso = formatoProducto;
+                                mbsaleLista.cantidad = detalleBoletaManual.items[p].quantity.ToString();
+                                mbsaleLista.precio = detalleBoletaManual.items[p].totalAmount.ToString();
+                                MultiproductoBsale.Add(mbsaleLista);
+                                
+                                txt_producto_re.Text = MultiproductoBsale[0].nombre;
+                                txt_direccion_re.Text = boletaManual.items[a].address;
+                                txt_comuna_re.Text = boletaManual.items[a].municipality;
+                                
+                                txt_peso_re.Text = MultiproductoBsale[0].peso;
+                                txt_cantidad_re.Text = MultiproductoBsale[0].cantidad;
+                                txt_total_re.Text = MultiproductoBsale[0].precio;
+                                vendedorRe = vendedor.firstName + " " + vendedor.lastName;
+                                
+                                //long fechaEmision = boletaManual.items[a].emissionDate;
+                                //DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(fechaEmision);
+                                //BBDDFinal.Cell($"P{icelda}").Value = dateTimeOffset.ToString("dd/MM/yyyy");
+                                if (boletaManual.items[a].address == "Av. Gabriela Oriente 2174")
+                                {
+                                    txt_repartidor_re.Text = "Retiro Local";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void btn_producto_siguiente_Click(object sender, EventArgs e)
+        {
+            totalmultiproducto = 0;
+            if (multiProducto)
+            {
+                if (cmb_tipo_documento.Text == "Jumpseller")
+                {
+                    if (indiceMultiProducto > -1 && indiceMultiProducto < MultiProducto[0].order.products.Length - 1)
+                    {
+                        txt_producto_re.Text = string.Empty;
+                        indiceMultiProducto++;
+                        txt_producto_re.Text = MultiProducto[0].order.products[indiceMultiProducto].name;
+                        txt_peso_re.Text = MultiProducto[0].order.products[indiceMultiProducto].weight.ToString();
+                        txt_cantidad_re.Text = MultiProducto[0].order.products[indiceMultiProducto].qty.ToString();
+                        totalmultiproducto = ((int)MultiProducto[0].order.products[indiceMultiProducto].qty * (int)MultiProducto[0].order.products[indiceMultiProducto].price) - (int)MultiProducto[0].order.products[indiceMultiProducto].discount;
+                        txt_total_re.Text = totalmultiproducto.ToString();
+                    }
+                }
+                if (cmb_tipo_documento.Text == "BE")
+                {
+                    if (indiceMultiProducto > -1 && indiceMultiProducto < MultiproductoBsale.Count - 1)
+                    {
+                        txt_producto_re.Text = string.Empty;
+                        indiceMultiProducto++;
+                        txt_producto_re.Text = MultiproductoBsale[indiceMultiProducto].nombre;
+                        txt_peso_re.Text = MultiproductoBsale[indiceMultiProducto].peso;
+                        txt_cantidad_re.Text = MultiproductoBsale[indiceMultiProducto].cantidad;
+                        txt_total_re.Text = MultiproductoBsale[indiceMultiProducto].precio;
+                    }
+                }
+                if (cmb_tipo_documento.Text == "BM")
+                {
+                    if (indiceMultiProducto > -1 && indiceMultiProducto < MultiproductoBsale.Count - 1)
+                    {
+                        txt_producto_re.Text = string.Empty;
+                        indiceMultiProducto++;
+                        txt_producto_re.Text = MultiproductoBsale[indiceMultiProducto].nombre;
+                        txt_peso_re.Text = MultiproductoBsale[indiceMultiProducto].peso;
+                        txt_cantidad_re.Text = MultiproductoBsale[indiceMultiProducto].cantidad;
+                        txt_total_re.Text = MultiproductoBsale[indiceMultiProducto].precio;
+                    }
+                }
+                if (cmb_tipo_documento.Text == "BF")
+                {
+                    if (indiceMultiProducto > -1 && indiceMultiProducto < MultiproductoBsale.Count - 1)
+                    {
+                        txt_producto_re.Text = string.Empty;
+                        indiceMultiProducto++;
+                        txt_producto_re.Text = MultiproductoBsale[indiceMultiProducto].nombre;
+                        txt_peso_re.Text = MultiproductoBsale[indiceMultiProducto].peso;
+                        txt_cantidad_re.Text = MultiproductoBsale[indiceMultiProducto].cantidad;
+                        txt_total_re.Text = MultiproductoBsale[indiceMultiProducto].precio;
+                    }
+                }
+            }
+        }
+
+        private void btn_producto_anterior_Click(object sender, EventArgs e)
+        {
+            totalmultiproducto = 0;
+            if (multiProducto)
+            {
+                if (cmb_tipo_documento.Text == "Jumpseller")
+                {
+                    if (indiceMultiProducto > 0)
+                    {
+                        txt_producto_re.Text = string.Empty;
+                        indiceMultiProducto--;
+                        txt_producto_re.Text = MultiProducto[0].order.products[indiceMultiProducto].name;
+                        txt_peso_re.Text = MultiProducto[0].order.products[indiceMultiProducto].weight.ToString();
+                        txt_cantidad_re.Text = MultiProducto[0].order.products[indiceMultiProducto].qty.ToString();
+                        totalmultiproducto = ((int)MultiProducto[0].order.products[indiceMultiProducto].qty * (int)MultiProducto[0].order.products[indiceMultiProducto].price) - (int)MultiProducto[0].order.products[indiceMultiProducto].discount;
+                        txt_total_re.Text = totalmultiproducto.ToString();
+                    }
+                }
+                if (cmb_tipo_documento.Text == "BE")
+                {
+                    if (indiceMultiProducto > 0)
+                    {
+                        txt_producto_re.Text = string.Empty;
+                        indiceMultiProducto--;
+                        txt_producto_re.Text = MultiproductoBsale[indiceMultiProducto].nombre;
+                        txt_peso_re.Text = MultiproductoBsale[indiceMultiProducto].peso;
+                        txt_cantidad_re.Text = MultiproductoBsale[indiceMultiProducto].cantidad;
+                        txt_total_re.Text = MultiproductoBsale[indiceMultiProducto].precio;
+                    }
+                }
+                if (cmb_tipo_documento.Text == "BM")
+                {
+                    if (indiceMultiProducto > -1 && indiceMultiProducto < MultiproductoBsale.Count - 1)
+                    {
+                        txt_producto_re.Text = string.Empty;
+                        indiceMultiProducto--;
+                        txt_producto_re.Text = MultiproductoBsale[indiceMultiProducto].nombre;
+                        txt_peso_re.Text = MultiproductoBsale[indiceMultiProducto].peso;
+                        txt_cantidad_re.Text = MultiproductoBsale[indiceMultiProducto].cantidad;
+                        txt_total_re.Text = MultiproductoBsale[indiceMultiProducto].precio;
+                    }
+                }
+                if (cmb_tipo_documento.Text == "F")
+                {
+                    if (indiceMultiProducto > -1 && indiceMultiProducto < MultiproductoBsale.Count - 1)
+                    {
+                        txt_producto_re.Text = string.Empty;
+                        indiceMultiProducto--;
+                        txt_producto_re.Text = MultiproductoBsale[indiceMultiProducto].nombre;
+                        txt_peso_re.Text = MultiproductoBsale[indiceMultiProducto].peso;
+                        txt_cantidad_re.Text = MultiproductoBsale[indiceMultiProducto].cantidad;
+                        txt_total_re.Text = MultiproductoBsale[indiceMultiProducto].precio;
+                    }
+                }
+            }
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            var workBook = new XLWorkbook($"{rutaGuardado}\\Archivo Ruta {today.ToString("dd/MM/yyyy")}.xlsx");
+            var reRoutix = workBook.Worksheet("Resagados ROUTIX");
+            var reBBDDFinal = workBook.Worksheet("Resagados BBDD Final");
+            if (cmb_tipo_documento.Text == "Jumpseller")
+            {
+                reBBDDFinal.Cell($"B{contadorResagados}").Value = txt_nombre_re.Text;
+                reBBDDFinal.Cell($"C{contadorResagados}").Value = txt_nombre_mascota_re.Text;
+                reBBDDFinal.Cell($"D{contadorResagados}").Value = txt_direccion_re.Text;
+                reBBDDFinal.Cell($"E{contadorResagados}").Value = txt_comuna_re.Text;
+                reBBDDFinal.Cell($"F{contadorResagados}").Value = txt_telefono_re.Text;
+                reBBDDFinal.Cell($"G{contadorResagados}").Value = txt_correo_re.Text;
+                reBBDDFinal.Cell($"H{contadorResagados}").Value = txt_producto_re.Text;
+                reBBDDFinal.Cell($"I{contadorResagados}").Value = txt_peso_re.Text;
+                reBBDDFinal.Cell($"J{contadorResagados}").Value = txt_cantidad_re.Text;
+                reBBDDFinal.Cell($"K{contadorResagados}").Value = txt_total_re.Text;
+                reBBDDFinal.Cell($"L{contadorResagados}").Value = medioPagoRe;
+                reBBDDFinal.Cell($"M{contadorResagados}").Value = txt_notas_re.Text;
+                reBBDDFinal.Cell($"Q{contadorResagados}").Value = txt_forma_envio_re.Text;
+                reBBDDFinal.Cell($"R{contadorResagados}").Value = txt_repartidor_re.Text;
+                reBBDDFinal.Cell($"S{contadorResagados}").Value = "Casa Matriz";
+                reBBDDFinal.Cell($"T{contadorResagados}").Value = "Santiago";
+                reBBDDFinal.Cell($"U{contadorResagados}").Value = txt_pedido_resagado.Text;
+                reBBDDFinal.Cell($"V{contadorResagados}").Value = txt_pedido_resagado.Text + "" + (indiceMultiProducto + 1);
+                // Formato ruta resagados
+                reRoutix.Cell($"B{contadorResagados}").Value = txt_nombre_re.Text;
+                reRoutix.Cell($"C{contadorResagados}").Value = txt_direccion_re.Text + ", " + txt_comuna_re.Text;
+                reRoutix.Cell($"E{contadorResagados}").Value = txt_cantidad_re.Text + "x " + txt_producto_re.Text + " por $" + txt_total_re.Text;
+                reRoutix.Cell($"G{contadorResagados}").Value = txt_pedido_resagado.Text;
+                reRoutix.Cell($"H{contadorResagados}").Value = "1";
+                reRoutix.Cell($"I{contadorResagados}").Value = "00:00";
+                reRoutix.Cell($"J{contadorResagados}").Value = "23:59";
+                reRoutix.Cell($"K{contadorResagados}").Value = txt_correo_re.Text;
+                reRoutix.Cell($"L{contadorResagados}").Value = txt_telefono_re.Text;
+                reRoutix.Cell($"N{contadorResagados}").Value = txt_repartidor_re.Text;
+                reRoutix.Cell($"M{contadorResagados}").Value = txt_nombre_re.Text;
+            }
+            else
+            {
+                reBBDDFinal.Cell($"B{contadorResagados}").Value = txt_nombre_re.Text;
+                reBBDDFinal.Cell($"C{contadorResagados}").Value = txt_nombre_mascota_re.Text;
+                reBBDDFinal.Cell($"D{contadorResagados}").Value = txt_direccion_re.Text;
+                reBBDDFinal.Cell($"E{contadorResagados}").Value = txt_comuna_re.Text;
+                reBBDDFinal.Cell($"F{contadorResagados}").Value = txt_telefono_re.Text;
+                reBBDDFinal.Cell($"G{contadorResagados}").Value = txt_correo_re.Text;
+                reBBDDFinal.Cell($"H{contadorResagados}").Value = txt_producto_re.Text;
+                reBBDDFinal.Cell($"I{contadorResagados}").Value = txt_peso_re.Text;
+                reBBDDFinal.Cell($"J{contadorResagados}").Value = txt_cantidad_re.Text;
+                reBBDDFinal.Cell($"K{contadorResagados}").Value = txt_total_re.Text;
+                reBBDDFinal.Cell($"L{contadorResagados}").Value = "-";
+                reBBDDFinal.Cell($"M{contadorResagados}").Value = txt_notas_re.Text;
+                reBBDDFinal.Cell($"Q{contadorResagados}").Value = txt_forma_envio_re.Text;
+                reBBDDFinal.Cell($"R{contadorResagados}").Value = txt_repartidor_re.Text;
+                reBBDDFinal.Cell($"S{contadorResagados}").Value = vendedorRe;
+                reBBDDFinal.Cell($"T{contadorResagados}").Value = "Santiago";
+                reBBDDFinal.Cell($"U{contadorResagados}").Value = cmb_tipo_documento.Text + "-" + txt_pedido_resagado.Text;
+                reBBDDFinal.Cell($"V{contadorResagados}").Value = cmb_tipo_documento.Text + "-" + txt_pedido_resagado.Text;
+                // Formato ruta resagados
+                reRoutix.Cell($"B{contadorResagados}").Value = txt_nombre_re.Text;
+                reRoutix.Cell($"C{contadorResagados}").Value = txt_direccion_re.Text + ", " + txt_comuna_re.Text;
+                reRoutix.Cell($"E{contadorResagados}").Value = txt_cantidad_re.Text + "x " + txt_producto_re.Text + " de " + txt_peso_re.Text + " Kg" + " por $" + txt_total_re.Text;
+                reRoutix.Cell($"G{contadorResagados}").Value = txt_pedido_resagado.Text;
+                reRoutix.Cell($"H{contadorResagados}").Value = "1";
+                reRoutix.Cell($"I{contadorResagados}").Value = "00:00";
+                reRoutix.Cell($"J{contadorResagados}").Value = "23:59";
+                reRoutix.Cell($"K{contadorResagados}").Value = txt_correo_re.Text;
+                reRoutix.Cell($"L{contadorResagados}").Value = txt_telefono_re.Text;
+                reRoutix.Cell($"N{contadorResagados}").Value = txt_repartidor_re.Text;
+                reRoutix.Cell($"M{contadorResagados}").Value = txt_nombre_re.Text;
+            }
+
+
+
+            ////Formato para BBDD Final resagados           
+
+            //reBBDDFinal.Cell("P1").Value = "Fecha venta";
+            //reBBDDFinal.Cell("P1").Style.Fill.SetBackgroundColor(XLColor.Orange);deletesystem32
+
+            workBook.SaveAs($"{rutaGuardado}\\Archivo Ruta {today.ToString("dd/MM/yyyy")}.xlsx");
+            contadorResagados++;
         }
     }
 }
